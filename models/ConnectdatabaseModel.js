@@ -14,11 +14,14 @@ let db = mongoose.connect(connectionStream, {
   process.exit()
 })
 
+// In Mongoose, you need to use models to create, read, update, or delete items from a MongoDB collection.
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
         name: {
-            type: String,
+            type: String, 
+            // unique shit doesn't work..
+            // unique: true, 
             minlength: 2,
             maxlength: 25,
             required: true
@@ -32,7 +35,7 @@ const schema = new Schema({
             required: true
         }
     });
-
+  
 
 const SchemaClass = mongoose.model('quote', schema);
 

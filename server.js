@@ -13,9 +13,23 @@ app.use(express.json());
 
 // app.use(routes.routes);
 
-app.get('/', controller.getData);
+app.get('/', controller.getCollection);
 
-app.get('/post', controller.createMongoData);
+app.get('/:id', controller.getDocument);
+
+app.post('/', controller.createMongoData);
+
+app.put('/put/:id', controller.updateDocument);
+
+app.delete('/delete/:id', controller.deleteDocument);
+
+app.delete('/nuke/database', controller.deleteCollection);
+
+//If it does not exist...
+app.get('*', controller.pageNotfound);
+app.post('*', controller.pageNotfound);
+app.put('*', controller.pageNotfound);
+app.delete('*', controller.pageNotfound);
 
 app.listen(port, () => {
     console.log("I'm listening", port, "Lets fucking do this!");
