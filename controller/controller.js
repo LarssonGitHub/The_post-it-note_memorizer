@@ -1,6 +1,5 @@
 import models from '../models/ConnectdatabaseModel.js';
 import mongoose from 'mongoose';
-import crud from '../models/crudFunctions.js'
 import dotenv from 'dotenv';
 import session, {
     MemoryStore
@@ -38,17 +37,33 @@ app.use(session({
 const validatedUser = false;
 
 function validateUser(req, res, next) {
-    console.log("acces denied");
+ 
     if (!validatedUser) {
+        console.log("acces denied");
         return res.redirect('login');
     }
     return next();
 }
 
-
+function login(req, res, next) {
+    res.status(200).render('pages/login', {
+        anwser: "greetings from server, denied, log in!",
+    });
+}
 
 async function getCollection(req, res, next) {
-    crud.findDocuments().then(validation => {
+
+    async function findDocuments() {
+        try {
+            const validateDocument = await models.SchemaClass.find().exec();
+            return [true, 200, validateDocument];
+            } catch (err) {
+                console.log(err);
+                return [false, 500, "Something horrible went wrong getting all collections"];
+            }
+    }
+
+    findDocuments().then(validation => {
         let [isValidated, statusCode, result] = validation;
         if (isValidated) {
             res.status(statusCode).render('pages/index', {
@@ -65,15 +80,27 @@ async function getCollection(req, res, next) {
 
 }
 
-function login(req, res, next) {
-    res.status(200).render('pages/login', {
-        anwser: "greetings from server, denied, log in!",
-    });
-}
-
 function getDocument(req, res, next) {
     console.log("get id called");
-    crud.getDocumentByID(req.params.id).then(validation => {
+
+    async function getDocumentByID(id) {
+        try {
+        const finalId = mongoose.Types.ObjectId(id)
+        const validateDocument = await models.SchemaClass.findOne({
+            _id: finalId
+        });
+    console.log(validateDocument);
+        if (validateDocument === null) {
+            throw new Error("couldn't find any document by that id")
+        }
+        return [true, 200, validateDocument];
+    
+    } catch (err) {
+        console.log(err);
+        return [false, 404, "Something went wrong, most likely is there no document with this id"];
+    }}
+
+    getDocumentByID(req.params.id).then(validation => {
         let [isValidated, statusCode, result] = validation;
         if (isValidated) {
             res.status(statusCode).send({
@@ -91,7 +118,23 @@ function getDocument(req, res, next) {
 
 function createDocument(req, res, next) {
     console.log('post event called');
-    crud.postNewDocument().then(validation => {
+
+    async function postNewDocument() {
+        try {
+            let newDocument = new models.SchemaClass({
+                name: "new created document2.",
+                quote: "2",
+                category: "2"
+            });
+            let saveDocument = await newDocument.save();
+            return [true, 200, saveDocument];
+        } catch (err) {
+            console.log(err);
+            return [false, 400, err];
+        }
+    }
+
+    postNewDocument().then(validation => {
         let [isValidated, statusCode, result] = validation;
         if (isValidated) {
             res.status(statusCode).send({
