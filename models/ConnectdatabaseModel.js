@@ -30,6 +30,9 @@ const schema = new Schema({
             maxlength: 25,
             required: true
         },
+        userID: {
+            type: Schema.Types.ObjectId
+        },
         quote: {
             type: String,
             required: true
@@ -43,9 +46,23 @@ const schema = new Schema({
 
 const SchemaClass = mongoose.model('note', schema);
 
+const UserSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        minlength: 5,
+        required: true
+    }
+})
+
+const UserSchemaClass = mongoose.model('user', UserSchema);
 
 export default {
- SchemaClass
+ SchemaClass,
+ UserSchemaClass
 }
 
 //skapa anvädar schemea

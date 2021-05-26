@@ -9,11 +9,12 @@ import mongoose from 'mongoose';
 
 
 function validateUser(req, res, next) {
-console.log(req.session);
-    // if (!req.session.isValidated) {
-    //     console.log("access denied");
-    //     return res.redirect('user/login');
-    // }
+    console.log(req.session);
+    if (!req.session.isValidated) {
+        console.log("access denied");
+        return res.redirect('/user/login');
+    }
+    console.log(req.session.isValidated);
     return next();
 }
 
@@ -23,10 +24,31 @@ function renderLogin(req, res, next) {
     });
 }
 
-function submitLogin(req, res, next) {
-    // const { name, password } = req.body;
-    //You need to create rules for log in.. conntcted to db server
-    req.session.isValidated = true;
+async function submitLogin(req, res, next) {
+    const { name, password } = req.body;
+
+    console.log(req.body);
+    
+    const validateUser = await models.UserSchemaClass.findOne({
+        name: name
+    });
+
+    if (!validateUser || null) {
+        console.log("no user there...!");
+        return res.redirect('/user/login');
+    }
+
+    const validatePassword = await models.UserSchemaClass.findOne({
+        password: password
+    });
+
+    if (!validatePassword || null) {
+        console.log("no password there...!");
+        return res.redirect('/user/login');
+    }
+
+    //session behåller/håller reda på ditt namn 
+    req.session.isValidated = validateUser;
     res.redirect('/')
 
 }
@@ -39,8 +61,43 @@ function renderRegistrer(req, res, next) {
 }
 
 function submitRegistrer(req, res, next) {
-    console.log("register called");
-    res.send()
+    console.log('post User event called');
+
+    const {
+        name,
+        password
+    } = req.body
+
+    async function postNewUser() {
+        try {
+            let newDocument = new models.UserSchemaClass({
+                name: name,
+                password: password
+            });
+            let saveDocument = await newDocument.save();
+            return [true, 200, saveDocument];
+        } catch (err) {
+            console.log(err);
+            return [false, 400, err];
+        }
+    }
+
+    postNewUser().then(validation => {
+        let [isValidated, statusCode, result] = validation;
+        if (isValidated) {
+            console.log("user added");
+            res.status(statusCode).redirect('/user/login')
+            return;
+        }
+
+        console.log({
+            Anwser: "Didn't add a new user",
+            result: result
+        });
+
+        res.status(statusCode).redirect('/user/register');
+
+    });
 }
 
 
@@ -50,10 +107,10 @@ async function getCollection(req, res, next) {
         try {
             const validateDocument = await models.SchemaClass.find().exec();
             return [true, 200, validateDocument];
-            } catch (err) {
-                console.log(err);
-                return [false, 500, "Something horrible went wrong getting all collections"];
-            }
+        } catch (err) {
+            console.log(err);
+            return [false, 500, "Something horrible went wrong getting all collections"];
+        }
     }
 
     findDocuments().then(validation => {
@@ -76,32 +133,33 @@ async function getCollection(req, res, next) {
 function getDocument(req, res, next) {
     console.log("get id called");
 
-//     models.SchemaClass.findOne({
-//         _id: req.params.id
-//     }, (err, resultat) => {
-//         if (err) {
-//             res.send(err)
-//             return;
-//         }
-//         res.send(resultat)
-//     })
-// };
+    //     models.SchemaClass.findOne({
+    //         _id: req.params.id
+    //     }, (err, resultat) => {
+    //         if (err) {
+    //             res.send(err)
+    //             return;
+    //         }
+    //         res.send(resultat)
+    //     })
+    // };
     async function getDocumentByID(id) {
         try {
-        const finalId = mongoose.Types.ObjectId(id)
-        const validateDocument = await models.SchemaClass.findOne({
-            _id: finalId
-        });
-    console.log(validateDocument);
-        if (validateDocument === null) {
-            throw new Error("couldn't find any document by that id")
+            const finalId = mongoose.Types.ObjectId(id)
+            const validateDocument = await models.SchemaClass.findOne({
+                _id: finalId
+            });
+            console.log(validateDocument);
+            if (validateDocument === null) {
+                throw new Error("couldn't find any document by that id")
+            }
+            return [true, 200, validateDocument];
+
+        } catch (err) {
+            console.log(err);
+            return [false, 404, "Something went wrong, most likely is there no document with this id"];
         }
-        return [true, 200, validateDocument];
-    
-    } catch (err) {
-        console.log(err);
-        return [false, 404, "Something went wrong, most likely is there no document with this id"];
-    }}
+    }
 
     getDocumentByID(req.params.id).then(validation => {
         let [isValidated, statusCode, result] = validation;
@@ -126,6 +184,7 @@ function createDocument(req, res, next) {
         try {
             let newDocument = new models.SchemaClass({
                 name: "new created document2.",
+                //userID: User id när postar postitnote
                 quote: "2",
                 category: "2"
             });

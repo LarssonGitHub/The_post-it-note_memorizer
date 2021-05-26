@@ -25,7 +25,6 @@ router.use(session({
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    aaa: 'ssssss',
     store: new MemoryStore(),
     cookie: {
         maxAge: Number(SESSION_LIFETIME),
