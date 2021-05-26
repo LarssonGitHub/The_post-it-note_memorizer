@@ -1,10 +1,14 @@
 import mongoose from 'mongoose';
 
 // //This is what connects to the database! A security risk and should be in env. file later)
-const connectionStream = 'mongodb+srv://user:Los20Miss@cluster0.dqq4b.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+import dotenv from 'dotenv';
+dotenv.config();
+const {
+    connectionStream
+} = process.env;
   
 //Remember to make this into asynch and shit..
-let db = mongoose.connect(connectionStream, {
+mongoose.connect(connectionStream, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -20,7 +24,7 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
         name: {
             type: String, 
-            // unique has destroyed my sevrer D:
+            // unique has destroyed my collection..! Create a new one! D:
             // unique: true, 
             minlength: 2,
             maxlength: 25,
@@ -37,13 +41,17 @@ const schema = new Schema({
     });
   
 
-const SchemaClass = mongoose.model('quote', schema);
+const SchemaClass = mongoose.model('note', schema);
 
 
 export default {
  SchemaClass
 }
 
+//skapa anvädar schemea
+
+
+//Döp om till qoute model och anvädaren model
 //gold.. https://zellwk.com/blog/mongoose/
 
 

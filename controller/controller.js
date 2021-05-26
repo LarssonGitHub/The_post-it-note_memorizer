@@ -1,55 +1,48 @@
 import models from '../models/ConnectdatabaseModel.js';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import session, {
-    MemoryStore
-} from 'express-session';
-import express from 'express';
 
-const app = express();
-
-
-dotenv.config();
-const {
-    PORT,
-    SESSION_LIFETIME,
-    NODE_ENV,
-    SESSION_NAME,
-    SESSION_SECRET,
-    TEST
-} = process.env;
-
-
-app.use(session({
-    name: SESSION_NAME,
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: new MemoryStore(),
-    cookie: {
-        maxAge: Number(SESSION_LIFETIME),
-        sameSite: 'strict',
-        secure: NODE_ENV === 'production',
-    },
-}));
 
 //If the current middleware function does not end the request-response cycle, it must call next() to pass control to the next middleware function. Otherwise, the request will be left hanging.
-const validatedUser = false;
+
+//steg 1måste valdiaera (tex if/else) anvädare här samt hårdkoda anvädare, etc, steg 2: sedan mongodb 
+
+
 
 function validateUser(req, res, next) {
- 
-    if (!validatedUser) {
-        console.log("acces denied");
-        return res.redirect('login');
-    }
+console.log(req.session);
+    // if (!req.session.isValidated) {
+    //     console.log("access denied");
+    //     return res.redirect('user/login');
+    // }
     return next();
 }
 
-function login(req, res, next) {
+function renderLogin(req, res, next) {
     res.status(200).render('pages/login', {
         anwser: "greetings from server, denied, log in!",
     });
 }
+
+function submitLogin(req, res, next) {
+    // const { name, password } = req.body;
+    //You need to create rules for log in.. conntcted to db server
+    req.session.isValidated = true;
+    res.redirect('/')
+
+}
+
+
+function renderRegistrer(req, res, next) {
+    res.status(200).render('pages/register', {
+        anwser: "greetings from server, create an account you loveable person",
+    });
+}
+
+function submitRegistrer(req, res, next) {
+    console.log("register called");
+    res.send()
+}
+
 
 async function getCollection(req, res, next) {
 
@@ -83,6 +76,16 @@ async function getCollection(req, res, next) {
 function getDocument(req, res, next) {
     console.log("get id called");
 
+//     models.SchemaClass.findOne({
+//         _id: req.params.id
+//     }, (err, resultat) => {
+//         if (err) {
+//             res.send(err)
+//             return;
+//         }
+//         res.send(resultat)
+//     })
+// };
     async function getDocumentByID(id) {
         try {
         const finalId = mongoose.Types.ObjectId(id)
@@ -149,7 +152,6 @@ function createDocument(req, res, next) {
         });
     });
 }
-
 //Make it.. Nicer.. error handling... Don't forget async shit,...! YOU WHERE HERE........ :(((((((())))))))))()D)
 async function updateDocument(req, res, next) {
     console.log('updatebyid Called');
@@ -212,5 +214,8 @@ export default {
     deleteCollection,
     pageNotfound,
     validateUser,
-    login
+    renderLogin,
+    submitLogin,
+    renderRegistrer,
+    submitRegistrer
 }

@@ -2,32 +2,16 @@ import express from 'express';
 import routes from './routes/routes.js'
 import path from 'path';
 //Makes it possible to work with envoirmental files
-import dotenv from 'dotenv';
-// import session, { MemoryStore } from 'express-session';
+
 
 const app = express();
 
-
+import dotenv from 'dotenv';
 dotenv.config();
 const {
-PORT, SESSION_LIFETIME, NODE_ENV, SESSION_NAME, SESSION_SECRET, TEST
+    PORT,
+    TEST
 } = process.env;
-
-
-// app.use(session({
-//     name: SESSION_NAME,
-//     secret: SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: false,
-//     store: new MemoryStore(),
-//     cookie: {
-//       maxAge: Number(SESSION_LIFETIME),
-//       sameSite: 'strict',
-//       secure: NODE_ENV === 'production',
-//     },
-//   }));
-
-
 
 
 app.use(express.urlencoded({ extended: false }));

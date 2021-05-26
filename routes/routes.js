@@ -1,11 +1,48 @@
-import express from 'express';
+
 import controller from '../controller/controller.js';
 
 const router = express.Router();
 
+import dotenv from 'dotenv';
+import session, {
+    MemoryStore
+} from 'express-session';
+import express from 'express';
+
+
+
+dotenv.config();
+const {
+    SESSION_LIFETIME,
+    NODE_ENV,
+    SESSION_NAME,
+    SESSION_SECRET,
+} = process.env;
+
+
+router.use(session({
+    name: SESSION_NAME,
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    aaa: 'ssssss',
+    store: new MemoryStore(),
+    cookie: {
+        maxAge: Number(SESSION_LIFETIME),
+        sameSite: 'strict',
+        secure: NODE_ENV === 'production',
+    },
+}));
+
 router.get('/', controller.validateUser, controller.getCollection);
 
-router.get('/login', controller.login)
+router.get('/user/login', controller.renderLogin)
+
+router.post('/user/login', controller.submitLogin)
+
+router.get('/user/register', controller.renderRegistrer)
+
+router.post('/user/register', controller.submitRegistrer)
 
 router.get('/:id', controller.validateUser, controller.getDocument);
 
