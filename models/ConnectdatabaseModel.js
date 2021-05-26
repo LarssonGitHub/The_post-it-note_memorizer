@@ -20,7 +20,7 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
         name: {
             type: String, 
-            // unique shit doesn't work..
+            // unique has destroyed my sevrer D:
             // unique: true, 
             minlength: 2,
             maxlength: 25,
