@@ -30,22 +30,24 @@ async function submitLogin(req, res, next) {
     console.log(req.body);
     
     const validateUser = await models.UserSchemaClass.findOne({
-        name: name
-    });
-
-    if (!validateUser || null) {
-        console.log("no user there...!");
-        return res.redirect('/user/login');
-    }
-
-    const validatePassword = await models.UserSchemaClass.findOne({
+        name: name,
         password: password
     });
 
-    if (!validatePassword || null) {
-        console.log("no password there...!");
+    console.log(validateUser);
+    if (!validateUser) {
+        console.log("no user there...! Or your password is wrong");
         return res.redirect('/user/login');
     }
+
+    // const validatePassword = await models.UserSchemaClass.findOne({
+    //     password: password
+    // });
+
+    // if (!validatePassword) {
+    //     console.log("no password there...!");
+    //     return res.redirect('/user/login');
+    // }
 
     //session behåller/håller reda på ditt namn 
     req.session.isValidated = validateUser;
@@ -105,7 +107,8 @@ async function getCollection(req, res, next) {
 
     async function findDocuments() {
         try {
-            const validateDocument = await models.SchemaClass.find().exec();
+            const validateDocument = await models.SchemaClass.find({category
+                : req.session.isValidated.name }).exec();
             return [true, 200, validateDocument];
         } catch (err) {
             console.log(err);
@@ -130,6 +133,7 @@ async function getCollection(req, res, next) {
 
 }
 
+//Make nicer error checking, in this example... Make it into one async.. not two!
 function getDocument(req, res, next) {
     console.log("get id called");
 
@@ -179,15 +183,21 @@ function getDocument(req, res, next) {
 
 function createDocument(req, res, next) {
     console.log('post event called');
-
+    const {headline, notes} = req.body;
+    console.log(req.session.isValidated.name);
     async function postNewDocument() {
+   
         try {
             let newDocument = new models.SchemaClass({
-                name: "new created document2.",
-                //userID: User id när postar postitnote
-                quote: "2",
-                category: "2"
+                name: headline || "Dude, you didn't add headline",
+                quote: notes || "You didn't add anything",
+                   //userID: User id när postar postitnote
+                category: req.session.isValidated.name
             });
+
+            if (!newDocument.category) {
+                throw new Error("Don't mess around with my cookies!")
+            }
             let saveDocument = await newDocument.save();
             return [true, 200, saveDocument];
         } catch (err) {
@@ -199,10 +209,11 @@ function createDocument(req, res, next) {
     postNewDocument().then(validation => {
         let [isValidated, statusCode, result] = validation;
         if (isValidated) {
-            res.status(statusCode).send({
-                Anwser: "Added new document",
-                result: result
-            });
+                   res.status(statusCode).redirect('/');
+            // res.status(statusCode).send({
+            //     Anwser: "Added new document",
+            //     result: result
+            // });
             return;
         }
         res.status(statusCode).send({

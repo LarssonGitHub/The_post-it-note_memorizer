@@ -45,7 +45,7 @@ router.post('/user/register', controller.submitRegistrer)
 
 router.get('/:id', controller.validateUser, controller.getDocument);
 
-router.post('/', controller.validateUser, controller.createDocument);
+router.post('/post', controller.validateUser, controller.createDocument);
 
 router.put('/:id', controller.validateUser, controller.updateDocument);
 

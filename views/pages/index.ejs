@@ -18,5 +18,11 @@
           </li>
         <% }); %>
       </ul>
+
+      <form action="/post" method="POST">
+        <input type="text" name="headline" placeholder="headline" required>
+        <textarea name="notes" placeholder="notes"></textarea>
+        <button type="submit">Add Post-it</button>
+      </form>
 </body>
 </html>
