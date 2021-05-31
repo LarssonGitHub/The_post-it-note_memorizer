@@ -22,7 +22,7 @@ mongoose.connect(connectionStream, {
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
-        name: {
+        headline: {
             type: String, 
             // unique has destroyed my collection..! Create a new one! D:
             // unique: true, 
@@ -30,17 +30,15 @@ const schema = new Schema({
             maxlength: 100,
             required: true
         },
+        note: {
+            type: String,
+            required: true
+        },
         userID: {
-            type: Schema.Types.ObjectId
-        },
-        quote: {
+            // type: Schema.Types.ObjectId,
             type: String,
             required: true
         },
-        category: {
-            type: String,
-            required: true
-        }
     });
   
 
@@ -49,7 +47,9 @@ const SchemaClass = mongoose.model('note', schema);
 const UserSchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        //Shit is derpctated in the future.. remove uniuqe
+        // unique: true
     },
     password: {
         type: String,

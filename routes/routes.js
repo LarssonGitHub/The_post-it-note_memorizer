@@ -10,7 +10,6 @@ import session, {
 import express from 'express';
 
 
-
 dotenv.config();
 const {
     SESSION_LIFETIME,
@@ -39,11 +38,14 @@ router.get('/user/login', controller.renderLogin)
 
 router.post('/user/login', controller.submitLogin)
 
+
 router.get('/user/register', controller.renderRegistrer)
 
 router.post('/user/register', controller.submitRegistrer)
 
-router.get('/:id', controller.validateUser, controller.getDocument);
+router.get('/user/logout', controller.validateUser, controller.logout)
+
+router.get('/id/:id', controller.validateUser, controller.getDocument);
 
 router.post('/post', controller.validateUser, controller.createDocument);
 

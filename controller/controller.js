@@ -1,42 +1,44 @@
 import models from '../models/ConnectdatabaseModel.js';
 import mongoose from 'mongoose';
-
-
-//If the current middleware function does not end the request-response cycle, it must call next() to pass control to the next middleware function. Otherwise, the request will be left hanging.
-
-//steg 1måste valdiaera (tex if/else) anvädare här samt hårdkoda anvädare, etc, steg 2: sedan mongodb 
-
+import dotenv from 'dotenv';
+dotenv.config();
+const {
+    SESSION_NAME,
+} = process.env;
 
 
 function validateUser(req, res, next) {
-    console.log(req.session);
+    // console.log(req.session);
     if (!req.session.isValidated) {
         console.log("access denied");
         return res.redirect('/user/login');
     }
-    console.log(req.session.isValidated);
+    // console.log(req.session.isValidated);
     return next();
 }
 
 function renderLogin(req, res, next) {
     res.status(200).render('pages/login', {
-        anwser: "greetings from server, denied, log in!",
+        anwser: "Welcome to post",
     });
 }
 
 async function submitLogin(req, res, next) {
-    const { name, password } = req.body;
+    const {
+        name,
+        password
+    } = req.body;
 
-    console.log(req.body);
-    
+    // console.log(req.body);
+
     const validateUser = await models.UserSchemaClass.findOne({
         name: name,
         password: password
     });
 
-    console.log(validateUser);
+    // console.log(validateUser);
     if (!validateUser) {
-        console.log("no user there...! Or your password is wrong");
+        // console.log("no user there...! Or your password is wrong");
         return res.redirect('/user/login');
     }
 
@@ -104,127 +106,110 @@ function submitRegistrer(req, res, next) {
 
 
 async function getCollection(req, res, next) {
+    console.log('getCollection called');
 
-    async function findDocuments() {
-        try {
-            const validateDocument = await models.SchemaClass.find({category
-                : req.session.isValidated.name }).exec();
-            return [true, 200, validateDocument];
-        } catch (err) {
-            console.log(err);
-            return [false, 500, "Something horrible went wrong getting all collections"];
-        }
-    }
+    try {
+        const validateDocument = await models.SchemaClass.find({
+            userID: req.session.isValidated.name
+        }).exec();
 
-    findDocuments().then(validation => {
-        let [isValidated, statusCode, result] = validation;
-        if (isValidated) {
-            res.status(statusCode).render('pages/index', {
-                Anwser: "All collection",
-                result: result
+        const results = validateDocument;
+
+        if (!validateDocument || validateDocument.length === 0) {
+            console.log('no documents');
+            res.status(200).render('pages/index', {
+                results: results,
+                message: 'Create your first post it note! Press the stack of notes to get started with your new sorted life!'
             });
             return;
         }
-        res.status(statusCode).send({
-            Anwser: "something went wrong.. Ops",
-            result: result
+        if (validateDocument) {
+            res.status(200).render('pages/index', {
+                results: results,
+                message: 'Welcome back'
+            });
+            return;
+        }
+    } catch (err) {
+        res.status(404).render('pages/index', {
+            results: [],
+            message: err
         });
-    });
-
+    }
 }
-
 //Make nicer error checking, in this example... Make it into one async.. not two!
-function getDocument(req, res, next) {
+async function getDocument(req, res, next) {
     console.log("get id called");
+    const id = req.params.id
 
-    //     models.SchemaClass.findOne({
-    //         _id: req.params.id
-    //     }, (err, resultat) => {
-    //         if (err) {
-    //             res.send(err)
-    //             return;
-    //         }
-    //         res.send(resultat)
-    //     })
-    // };
-    async function getDocumentByID(id) {
-        try {
-            const finalId = mongoose.Types.ObjectId(id)
-            const validateDocument = await models.SchemaClass.findOne({
-                _id: finalId
-            });
-            console.log(validateDocument);
-            if (validateDocument === null) {
-                throw new Error("couldn't find any document by that id")
-            }
-            return [true, 200, validateDocument];
-
-        } catch (err) {
-            console.log(err);
-            return [false, 404, "Something went wrong, most likely is there no document with this id"];
-        }
-    }
-
-    getDocumentByID(req.params.id).then(validation => {
-        let [isValidated, statusCode, result] = validation;
-        if (isValidated) {
-            res.status(statusCode).send({
-                Anwser: "Id found!",
-                result: result
-            });
-            return;
-        }
-        res.status(statusCode).send({
-            Anwser: "something went wrong.. Ops",
-            result: result
+    try {
+        const convertToObjectID = mongoose.Types.ObjectId(id)
+        console.log(convertToObjectID);
+        const validateDocument = await models.SchemaClass.findOne({
+            _id: convertToObjectID
         });
-    });
+        // console.log(validateDocument);
+        if (!validateDocument || validateDocument.length === 0) {
+            throw new Error("couldn't find any document by that id");
+            // res.status(404).json("couldn't find any document by that id");
+        }
+
+        if (validateDocument || validateDocument.length === 1) {
+            res.status(200).send(validateDocument)
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(404).json(err);
+        return;
+    }
 }
 
-function createDocument(req, res, next) {
+async function createDocument(req, res, next) {
     console.log('post event called');
-    const {headline, notes} = req.body;
+    const {
+        headline,
+        notes
+    } = req.body;
+
     console.log(req.session.isValidated.name);
-    async function postNewDocument() {
-   
-        try {
-            let newDocument = new models.SchemaClass({
-                name: headline || "Dude, you didn't add headline",
-                quote: notes || "You didn't add anything",
-                   //userID: User id när postar postitnote
-                category: req.session.isValidated.name
-            });
 
-            if (!newDocument.category) {
-                throw new Error("Don't mess around with my cookies!")
-            }
-            let saveDocument = await newDocument.save();
-            return [true, 200, saveDocument];
-        } catch (err) {
-            console.log(err);
-            return [false, 400, err];
+    try {
+        // //in case someone wants to mess with my cookies
+        // if (req.session.isValidated.name !== ) {
+        //     throw new Error("Don't mess around with my cookies!")
+        // }
+
+        let newDocument = new models.SchemaClass({
+            headline: headline || "Dude, you didn't add headline",
+            note: notes || "You didn't add anything",
+            //userID: User id när postar postitnote
+            userID: req.session.isValidated.name
+        });
+
+        if (newDocument.userID !== req.session.isValidated.name) {
+            throw new Error("Don't try to cheat the system...")
         }
-    }
 
-    postNewDocument().then(validation => {
-        let [isValidated, statusCode, result] = validation;
-        if (isValidated) {
-                   res.status(statusCode).redirect('/');
-            // res.status(statusCode).send({
-            //     Anwser: "Added new document",
-            //     result: result
-            // });
+        if (newDocument.userID === req.session.isValidated.name) {
+            let saveDocument = await newDocument.save();
+
+            res.status(200).send({
+                message: "Document added!",
+                document: saveDocument
+            })
             return;
         }
-        res.status(statusCode).send({
-            Anwser: "Didn't add a new document",
-            result: result
-        });
-    });
+    } catch (err) {
+        console.log(err);
+        res.status(404).json(err);
+        return;
+    }
 }
+
 //Make it.. Nicer.. error handling... Don't forget async shit,...! YOU WHERE HERE........ :(((((((())))))))))()D)
 async function updateDocument(req, res, next) {
     console.log('updatebyid Called');
+
     const id = mongoose.Types.ObjectId(req.params.id);
     const findDoucment = await models.SchemaClass.findOne({
         _id: id
@@ -244,30 +229,73 @@ async function updateDocument(req, res, next) {
 }
 
 async function deleteDocument(req, res, next) {
-    //findOneAndDelete better? https://mongoosejs.com/docs/api/model.html#model_Model.deleteOne
-    console.log('delete called');
-    const id = mongoose.Types.ObjectId(req.params.id);
-    const findDoucment = await models.SchemaClass.findOne({
-        _id: id
-    });
+    try {
+        //findOneAndDelete better? https://mongoosejs.com/docs/api/model.html#model_Model.deleteOne
+        console.log('delete called');
 
-    const deleted = await findDoucment.remove()
+        const id = req.params.id;
 
-    console.log(deleted);
-    res.send({
-        a: 'doucment deleted!',
-        m: deleted
-    });
+        if (!id) {
+            throw new Error('Sorry, something went wrong on the client side')
+        }
 
+        const convertToObjectID = mongoose.Types.ObjectId(id)
+        const findDoucment = await models.SchemaClass.findOne({
+            _id: convertToObjectID
+        });
+
+        if (findDoucment.userID !== req.session.isValidated.name) {
+            throw new Error("'Can't edit other people's documents")
+        }
+
+        if (findDoucment.userID === req.session.isValidated.name) {
+            const deletedDocument = await findDoucment.remove()
+            // console.log(deletedDocument);
+            res.status(200).send({
+                a: 'doucment deleted!',
+                m: deletedDocument
+            });
+        }
+
+    } catch (err) {
+        console.log(err);
+        res.status(404).send(err);
+    }
 }
 
 async function deleteCollection(req, res, next) {
-    console.log('nuke route called');
-    await models.SchemaClass.deleteMany({});
-    res.send({
-        m: "you nuked it...!"
-    })
+    try {
+        console.log('nuke called');
+
+        if (req.session.isValidated.name) {
+            await models.SchemaClass.deleteMany({
+                userID: req.session.isValidated.name
+            });
+            
+            res.status(200).send({
+                m: "you nuked it...!"
+            })
+        }
+
+    } catch (err) {
+        console.log(err);
+        res.status(404).send(err);
+    }
 }
+
+
+function logout(req, res) {
+    req.session.destroy((err) => {
+        if (err) {
+            console.log(err);
+            res.redirect('/')
+            return
+        }
+        res.clearCookie(SESSION_NAME);
+        console.log('cookie destroyed');
+        res.redirect('/')
+    });
+};
 
 function pageNotfound(req, res, next) {
     res.status(404).send({
@@ -287,5 +315,6 @@ export default {
     renderLogin,
     submitLogin,
     renderRegistrer,
-    submitRegistrer
+    submitRegistrer,
+    logout
 }

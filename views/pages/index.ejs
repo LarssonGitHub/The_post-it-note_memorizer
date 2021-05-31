@@ -1,28 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post it note</title>
-</head>
-<body>
-    <h1>Hio</h1>
-    <ul>
-        <% result.forEach(function(a) { %>
-          <li class="<%= a.category %>">
-            <strong><%= a.name %></strong>
-            <br>
-          class="<%= a.category %>">
-            <strong>ID: <%= a.id %></strong>
-          </li>
-        <% }); %>
-      </ul>
 
-      <form action="/post" method="POST">
-        <input type="text" name="headline" placeholder="headline" required>
-        <textarea name="notes" placeholder="notes"></textarea>
-        <button type="submit">Add Post-it</button>
-      </form>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post it note</title>
+  <style>
+    div {
+      border: 1px red solid;
+      width: 30%;
+      margin: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Hio</h1>
+  <p> <%= message %> </p>
+
+  <a id="nukeDatabase" href="/nuke/database">Nuke</a>
+
+  <a id="logoutBtn" href="/user/logout">Logout</a>
+
+
+  <% results.forEach(function(a) { %>
+  <div>
+    <p><%= a.id %> </p>
+    <p><%= a.headline %> </p>
+    <p><%= a.note %> </p>
+    <p><%= a.userID %> </p>
+    <button class="removeBtn" id="<%= a.id %>">Delete</button>
+  </div>
+  <% }); %>
+
+
+
+  <form action="/post" method="POST">
+    <input type="text" name="headline" placeholder="headline" required>
+    <textarea name="notes" placeholder="notes"></textarea>
+    <button type="submit">Add Post-it</button>
+  </form>
+  <br><br>
+  <form class="a">
+    <input type="text" name="getId" id="getId">
+    <button type="submit">search id debug</button>
+  </form>
+  <br><br>
+
+
+  <!-- Update this shit later.... -->
+  <!-- <form class="b">
+  <input type="text" name="headline" placeholder="headline" required>
+  <textarea name="notes" placeholder="notes"></textarea>
+  <button type="submit">Add Post-it</button>
+</form> -->
+
+  <script>
+    let form = document.querySelector('.a');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('getId').value;
+      console.log(id);
+      fetch('/id/' + id)
+        .then(response => response.json())
+        .then(data => {
+          console.log("yo")
+          console.log(data)
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+    })
+
+    let removeBtn = document.querySelectorAll('.removeBtn');
+
+    removeBtn.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        console.log(e.target.id);
+
+        fetch('/' + e.target.id, {
+            method: 'DELETE',
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data)
+          }).catch((error) => {
+            console.error('Error:', error);
+          });
+      })
+    })
+
+
+    let nukeBtn = document.getElementById('nukeDatabase').addEventListener('click', (e) => {
+      e.preventDefault()
+      let doit = confirm("Are you sure you want to nuke everything?")
+      let really = confirm("YOU CAN NOT REGRET THIS!!")
+      if (!doit) {
+  
+        return;
+      }
+
+      fetch('/nuke/database', {
+          method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+    })
+  </script>
+
 </body>
+
 </html>
