@@ -6,48 +6,64 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post it note</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <link rel="stylesheet" href="/css/main.min.css">
-  <style>
-    div {
-      border: 1px red solid;
-      width: 30%;
-      margin: 1rem;
-    }
   </style>
 </head>
 
 <body>
-  <h1>Hio</h1>
-  <p> <%= message %> </p>
 
-  <a id="nukeDatabase" href="/nuke/database">Nuke</a>
+  <header class="d-flex flex-wrap justify-content-between align-items-center align-content-center sticky-top">
+    <div class="headerMessage">
+      <h1> <%= message %> </h1>
+      <a id="logoutBtn" href="/user/logout">Logout</a>
+    </div>
 
-  <a id="logoutBtn" href="/user/logout">Logout</a>
-
-
-  <% results.forEach(function(a) { %>
-  <div>
-    <p><%= a.id %> </p>
-    <p><%= a.headline %> </p>
-    <p><%= a.note %> </p>
-    <p><%= a.userID %> </p>
-    <button class="removeBtn" id="<%= a.id %>">Delete</button>
-  </div>
-  <% }); %>
+    <div>
+      <a id="nukeDatabase" href="/nuke/database">Nuke</a>
+    </div>
 
 
 
+    <div>
+      <button id="postNewPostIt">Add new postit....</button>
+    </div>
+
+
+
+
+  </header>
+
+
+  <main id="postItContainer" class="d-flex flex-wrap justify-content-around align-items-center align-content-center">
+
+
+    <% results.forEach(function(object) { %>
+    <div class="postItObject m-2 p-2" id="<%= object.id %>">
+      <button class="alterBtn displayHide displayShow editBtn">Edit</button>
+      <button class="alterBtn displayHide saveEditsBtn">save edits</button>
+      <h2 class="editableHeadline" contenteditable="false"><%= object.headline %> </h2>
+      <p class="editableBodyText" contenteditable="false"><%= object.note %></p>
+      <p class="userID"><%= object.userID %> </p>
+      <button class="alterBtn displayHide displayShow deleteBtn" id="<%= object.id %>">Delete</button>
+    </div>
+    <% }); %>
+
+
+  </main>
+  <!-- 
   <form action="/post" method="POST">
     <input type="text" name="headline" placeholder="headline" required>
     <textarea name="notes" placeholder="notes"></textarea>
     <button type="submit">Add Post-it</button>
   </form>
   <br><br>
-  <form class="a">
+  <form id="getIdForm">
     <input type="text" name="getId" id="getId">
     <button type="submit">search id debug</button>
   </form>
-  <br><br>
+  <br><br> -->
 
 
   <!-- Update this shit later.... -->
@@ -57,60 +73,229 @@
   <button type="submit">Add Post-it</button>
 </form> -->
 
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous">
+  </script>
+
+
   <script>
-    let form = document.querySelector('.a');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = document.getElementById('getId').value;
-      console.log(id);
-      fetch('/id/' + id)
-        .then(response => response.json())
-        .then(data => {
-          console.log("yo")
-          console.log(data)
-        }).catch((error) => {
-          console.error('Error:', error);
-        });
-    })
+    const postItContainer = document.getElementById('postItContainer');
+    const postNewPostIt = document.getElementById('postNewPostIt');
 
-    let removeBtn = document.querySelectorAll('.removeBtn');
+    function getPostItContainerValues(postItContainer) {
+      let idValue = postItContainer.id;
+      let headlineTextContent = postItContainer.querySelector(".editableHeadline").textContent;
+      let BodyTextContent = postItContainer.querySelector(".editableBodyText").textContent;
+      let userIDRuserTextContent = postItContainer.querySelector(".userID").textContent;
+      return {
+        id: idValue,
+        headline: headlineTextContent,
+        bodyText: BodyTextContent,
+        userID: userIDRuserTextContent
+      }
+    }
 
-    removeBtn.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        console.log(e.target.id);
+    function grabContainerChildren(postItContainer) {
+      let containerHeadlineChild = postItContainer.querySelector(".editableHeadline");
+      let containerBodyChild = postItContainer.querySelector(".editableBodyText");
+      let containerUserChild = postItContainer.querySelector(".userID");
+      return {
+        headlineChild: containerHeadlineChild,
+        bodyChild: containerBodyChild,
+        userChild: containerUserChild
+      }
+    }
 
-        fetch('/' + e.target.id, {
-            method: 'DELETE',
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log(data)
-          }).catch((error) => {
-            console.error('Error:', error);
-          });
-      })
-    })
+    function alterChildrenEditable(headlineChild, bodyChild) {
+      let editableHeadlineAttribute = headlineChild.getAttribute('contenteditable');
+      let editableBodyTextAttribute = bodyChild.getAttribute('contenteditable');
 
-
-    let nukeBtn = document.getElementById('nukeDatabase').addEventListener('click', (e) => {
-      e.preventDefault()
-      let doit = confirm("Are you sure you want to nuke everything?")
-      let really = confirm("YOU CAN NOT REGRET THIS!!")
-      if (!doit) {
-  
+      if (editableHeadlineAttribute === 'false' && editableBodyTextAttribute === 'false') {
+        headlineChild.contentEditable = 'true';
+        bodyChild.contentEditable = 'true';
         return;
       }
+      if (editableHeadlineAttribute === 'true' && editableBodyTextAttribute === 'true') {
+        headlineChild.contentEditable = 'false';
+        bodyChild.contentEditable = 'false';
+      }
+    }
 
-      fetch('/nuke/database', {
-          method: 'DELETE',
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data)
-        }).catch((error) => {
-          console.error('Error:', error);
-        });
+    function grabContainer(e) {
+      let target = e.target;
+      if (target.matches('#postItContainer')) {
+        return;
+      }
+      if (!target.matches('.postItObject')) {
+        target = target.parentNode;
+      }
+      return target;
+    }
+
+    function hideOrShowBtns() {
+      let DOMdisplayClasses = postItContainer.querySelectorAll(".alterBtn");
+
+      //Used in conjuction with css, less javascript code, displayShow = visible, displayHide = none;
+      DOMdisplayClasses.forEach(classes => {
+        if (!classes.classList.contains('displayShow')) {
+          classes.classList.add('displayShow')
+          return
+        }
+        if (classes.classList.contains('displayShow')) {
+          classes.classList.remove('displayShow')
+        }
+      });
+    }
+
+    function editContainer(postItContainer) {
+      console.log('edit called for...', postItContainer);
+      let {
+        headlineChild,
+        bodyChild
+      } = grabContainerChildren(postItContainer);
+      alterChildrenEditable(headlineChild, bodyChild)
+      hideOrShowBtns()
+    }
+
+    function deleteContainer(postItContainer) {
+
+      console.log('delete called for...', postItContainer);
+      let {
+        id,
+        headline
+      } = getPostItContainerValues(postItContainer)
+
+      let willDelete = confirm('Are you sure you want to delete ' + headline + "?")
+
+      if (willDelete) {
+        //Function for delete fetch......
+        console.log('Let me contact database');
+        return;
+      }
+      console.log("Alright, good you didn't :D");
+    }
+
+    function callPutFetch() {
+      console.log("called put fetch...");
+    }
+
+    function saveEditedContainer(postItContainer) {
+      let {
+        id,
+        headline,
+        bodyText
+      } = getPostItContainerValues(postItContainer)
+      callPutFetch()
+    }
+
+    function EventAction(e, postItContainer) {
+      let action = e.target;
+
+      if (action.matches('.editBtn')) {
+        editContainer(postItContainer)
+      }
+      if (action.matches('.deleteBtn')) {
+        deleteContainer(postItContainer)
+      }
+      if (action.matches('.saveEditsBtn')) {
+        saveEditedContainer(postItContainer)
+      }
+      // Unsued abbort function:
+      // <button class="alterBtn displayHide abortEditBtn">back</button>
+      // if (action.matches('.abortEditBtn')) {
+      //   abortEditedContainer()
+      // }
+    }
+
+    function grabPostItObject(e) {
+      let postItContainer = grabContainer(e)
+      if (!postItContainer || "") {
+        return;
+      }
+      EventAction(e, postItContainer)
+    }
+
+    postItContainer.addEventListener('click', (e) => {
+      grabPostItObject(e);
     })
+
+    //Header stuff....
+
+    function createNewPost() {
+      //function to form...
+
+      //post....!
+      console.log('created new post called');
+    }
+
+    postNewPostIt.addEventListener('click', createNewPost)
+
+
+
+
+    /*
+        //   // todo for click event..
+
+        // let form = document.querySelector('#getIdForm');
+        // form.addEventListener('submit', (e) => {
+        //   e.preventDefault();
+        //   const id = document.getElementById('getId').value;
+        //   console.log(id);
+        //   fetch('/id/' + id)
+        //     .then(response => response.json())
+        //     .then(data => {
+        //       console.log("yo")
+        //       console.log(data)
+        //     }).catch((error) => {
+        //       console.error('Error:', error);
+        //     });
+        // })
+
+        // let removeBtn = document.querySelectorAll('.removeBtn');
+
+        // removeBtn.forEach(btn => {
+        //   btn.addEventListener('click', (e) => {
+        //     console.log(e.target.id);
+
+        //     fetch('/' + e.target.id, {
+        //         method: 'DELETE',
+        //       })
+        //       .then(response => response.json())
+        //       .then(data => {
+        //         console.log(data)
+        //       }).catch((error) => {
+        //         console.error('Error:', error);
+        //       });
+        //   })
+        // })
+
+
+        // let nukeBtn = document.getElementById('nukeDatabase').addEventListener('click', (e) => {
+        //   e.preventDefault()
+        //   let doit = confirm("Are you sure you want to nuke everything?")
+        //   let really = confirm("YOU CAN NOT REGRET THIS!!")
+        //   if (!doit) {
+
+        //     return;
+        //   }
+
+        //   fetch('/nuke/database', {
+        //       method: 'DELETE',
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //       console.log(data)
+        //     }).catch((error) => {
+        //       console.error('Error:', error);
+        //     });
+        // })
+        */
   </script>
 
 </body>

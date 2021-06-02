@@ -34,6 +34,14 @@ const schema = new Schema({
             type: String,
             required: true
         },
+        yAxis: {
+            type: Number,
+            required: true
+        },
+        xAxis: {
+            type: Number,
+            required: true
+        },
         userID: {
             // type: Schema.Types.ObjectId,
             type: String,

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post it note</title>
+  <link rel="stylesheet" href="/css/main.min.css">
+  </style>
+</head>
+
+<body>
+  <h1>Hio</h1>
+  <p> <%= message %> </p>
+
+  <a id="nukeDatabase" href="/nuke/database">Nuke</a>
+
+  <a id="logoutBtn" href="/user/logout">Logout</a>
+
+  <div id="dragableContainer">
+
+
+    <% results.forEach(function(object) { %>
+    <div style="top: <%= object.yAxis %>%; left: <%= object.xAxis %>%" class="dragableChild" id="<%= object.id %>">
+      <button class="btnVisiblity" hidden>Edit</button>
+      <h2><%= object.headline %> </h2>
+      <p><%= object.note %></p>
+      <p><%= object.userID %> </p>
+      <button class="btnVisiblity" id="<%= object.id %>" hidden>Delete</button>
+    </div>
+    <% }); %>
+
+
+  </div>
+
+  <form action="/post" method="POST">
+    <input type="text" name="headline" placeholder="headline" required>
+    <textarea name="notes" placeholder="notes"></textarea>
+    <button type="submit">Add Post-it</button>
+  </form>
+  <br><br>
+  <form class="a">
+    <input type="text" name="getId" id="getId">
+    <button type="submit">search id debug</button>
+  </form>
+  <br><br>
+
+
+  <!-- Update this shit later.... -->
+  <!-- <form class="b">
+  <input type="text" name="headline" placeholder="headline" required>
+  <textarea name="notes" placeholder="notes"></textarea>
+  <button type="submit">Add Post-it</button>
+</form> -->
+
+  <script>
+    // /dragableParentContainer
+    const dragableContainer = document.getElementById('dragableContainer');
+    const dragableChildren = document.querySelectorAll('.dragableChild');
+    const btnVisiblity = document.querySelectorAll('.btnVisiblity');
+
+    function alterInputVisiblity(e) {
+      // if else with true false..! Is visible
+      // if (e.type === document.mouseleave) {
+      //   console.log("goodbye");
+      // }
+      return;
+    }
+
+    function validateDragableElement(e) {
+      let dragableChild = e.target
+      let validateDragableChild = e.target.classList.value;
+      if (validateDragableChild !== "dragableChild") {
+        // How to doublecheck for parent..
+        // dragableChildContainer = 
+        dragableChild = e.target;
+      }
+      return {
+        dragableChildContainer: dragableChild,
+        dragableChildEventRef: e
+      }
+    }
+
+    //https://htmldom.dev/make-a-draggable-element/
+
+    //https://stackoverflow.com/questions/9334084/moveable-draggable-div
+    
+    function createEventListeners(dragableChildContainer, dragableChildEventRef) {
+
+      let x = dragableChildEventRef.clientX;
+      let y = dragableChildEventRef.clientY;
+
+      console.log(y);
+      console.log(x);
+
+      dragableChildContainer.addEventListener('mousedown', () => {
+        console.log('mousedown')
+
+
+        document.addEventListener('mousemove', (e) => {
+          console.log('mousemove');
+          // How far the mouse has been moved
+          const dx = e.clientX;
+          const dy = e.clientY;
+
+          // Set the position of element
+          console.log(`${dragableChildContainer.offsetTop + dx}px`);
+          // dragableChildContainer.style.left = `${dragableChildContainer.offsetLeft + dx}px`;
+
+          // Reassign the position of mouse
+          x = e.clientX;
+          y = e.clientY;
+        })
+      })
+
+      dragableContainer.addEventListener('mouseup', () => {
+        console.log('mouseup');
+      })
+
+
+
+      // x = windowEvent.clientX;
+      // y = windowEvent.clientY;
+      dragableChildContainer.addEventListener('mousedown', () => {
+        dragableContainer.addEventListener('mousemove', (e) => {
+          console.log(e.clientY);
+        });
+      })
+
+    }
+
+
+
+    function draggableEventDeligation(e) {
+      let {
+        dragableChildContainer,
+        dragableChildEventRef
+      } = validateDragableElement(e)
+      let isVisible = alterInputVisiblity(e)
+      createEventListeners(dragableChildContainer, dragableChildEventRef)
+
+      // let b = removeEventListeners()
+    }
+
+
+
+
+    // dragableContainer.addEventListener('mousemove', test2)
+    dragableContainer.addEventListener('mouseover', draggableEventDeligation)
+    // dragableContainer.addEventListener('mouseup', test4)
+    // dragableContainer.addEventListener('mousedown', test3)
+
+
+
+
+
+
+    let form = document.querySelector('.a');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('getId').value;
+      console.log(id);
+      fetch('/id/' + id)
+        .then(response => response.json())
+        .then(data => {
+          console.log("yo")
+          console.log(data)
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+    })
+
+    let removeBtn = document.querySelectorAll('.removeBtn');
+
+    removeBtn.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        console.log(e.target.id);
+
+        fetch('/' + e.target.id, {
+            method: 'DELETE',
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data)
+          }).catch((error) => {
+            console.error('Error:', error);
+          });
+      })
+    })
+
+
+    let nukeBtn = document.getElementById('nukeDatabase').addEventListener('click', (e) => {
+      e.preventDefault()
+      let doit = confirm("Are you sure you want to nuke everything?")
+      let really = confirm("YOU CAN NOT REGRET THIS!!")
+      if (!doit) {
+
+        return;
+      }
+
+      fetch('/nuke/database', {
+          method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+    })
+  </script>
+
+</body>
+
+</html>

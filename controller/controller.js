@@ -8,20 +8,30 @@ const {
 
 
 function validateUser(req, res, next) {
-    // console.log(req.session);
+    console.log(req.session);
     if (!req.session.isValidated) {
-        console.log("access denied");
+        //Sätt ett lämpligt medelande på alla redirect
+        req.session.notification = "access denied"
         return res.redirect('/user/login');
     }
-    // console.log(req.session.isValidated);
+    console.log(req.session.isValidated);
     return next();
 }
 
 function renderLogin(req, res, next) {
     res.status(200).render('pages/login', {
-        anwser: "Welcome to post",
+        message: "Welcome to your favorite post it-note-app!",
+        errorMessage: res.locals.notification
     });
 }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+function notify(req,res,next) {
+    res.locals.notification = req.session.notification;
+    delete req.session.notification;
+    next();
+}
+
 
 async function submitLogin(req, res, next) {
     const {
@@ -39,6 +49,7 @@ async function submitLogin(req, res, next) {
     // console.log(validateUser);
     if (!validateUser) {
         // console.log("no user there...! Or your password is wrong");
+        req.session.notification = "No such user found in our database"
         return res.redirect('/user/login');
     }
 
@@ -183,6 +194,8 @@ async function createDocument(req, res, next) {
             headline: headline || "Dude, you didn't add headline",
             note: notes || "You didn't add anything",
             //userID: User id när postar postitnote
+            xAxis: 50,
+            yAxis: 50,
             userID: req.session.isValidated.name
         });
 
@@ -316,5 +329,6 @@ export default {
     submitLogin,
     renderRegistrer,
     submitRegistrer,
-    logout
+    logout,
+    notify
 }

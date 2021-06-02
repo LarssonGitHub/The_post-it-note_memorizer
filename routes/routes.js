@@ -32,6 +32,8 @@ router.use(session({
     },
 }));
 
+router.use(controller.notify);
+
 router.get('/', controller.validateUser, controller.getCollection);
 
 router.get('/user/login', controller.renderLogin)
