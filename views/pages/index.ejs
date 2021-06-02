@@ -35,6 +35,7 @@
 
   </header>
 
+  <h1>DON'T FORGET TO WORK WITH CON TENT EDIEBLE..!</h1>
 
   <main id="postItContainer" class="d-flex flex-wrap justify-content-around align-items-center align-content-center">
 
@@ -42,7 +43,6 @@
     <% results.forEach(function(object) { %>
     <div class="postItObject m-2 p-2" id="<%= object.id %>">
       <button class="alterBtn displayHide displayShow editBtn">Edit</button>
-      <button class="alterBtn displayHide saveEditsBtn">save edits</button>
       <h2 class="editableHeadline" contenteditable="false"><%= object.headline %> </h2>
       <p class="editableBodyText" contenteditable="false"><%= object.note %></p>
       <p class="userID"><%= object.userID %> </p>
@@ -90,6 +90,7 @@
 
     function getPostItContainerValues(postItContainer) {
       let idValue = postItContainer.id;
+      console.log("this is id", idValue);
       let headlineTextContent = postItContainer.querySelector(".editableHeadline").textContent;
       let BodyTextContent = postItContainer.querySelector(".editableBodyText").textContent;
       let userIDRuserTextContent = postItContainer.querySelector(".userID").textContent;
@@ -153,6 +154,32 @@
       });
     }
 
+    function addNodeBtn(textNode, idName) {
+      const createBtn = document.createElement('BUTTON');
+      createBtn.innerHTML = textNode;
+      createBtn.id = idName;
+      return createBtn;
+    }
+
+    function dynamicallyAddBtns(postItContainer) {
+
+      const backBtn = addNodeBtn('back', 'abortEditBtn');
+      const saveBtn = addNodeBtn('Save Edits', 'saveEditsBtn');
+
+      postItContainer.insertBefore(backBtn, postItContainer.firstChild)
+      postItContainer.insertBefore(saveBtn, postItContainer.firstChild)
+    }
+
+    function dynamicallyRemoveBtns(postItContainer) {
+      console.log(postItContainer);
+      const getBackBtn = postItContainer.querySelector("#abortEditBtn")
+      const getSaveBtn = postItContainer.querySelector("#saveEditsBtn")
+      console.log(getBackBtn);
+      console.log(getSaveBtn);
+      postItContainer.removeChild(getBackBtn);
+      postItContainer.removeChild(getSaveBtn);
+    }
+
     function editContainer(postItContainer) {
       console.log('edit called for...', postItContainer);
       let {
@@ -161,6 +188,7 @@
       } = grabContainerChildren(postItContainer);
       alterChildrenEditable(headlineChild, bodyChild)
       hideOrShowBtns()
+      dynamicallyAddBtns(postItContainer)
     }
 
     function deleteContainer(postItContainer) {
@@ -181,17 +209,33 @@
       console.log("Alright, good you didn't :D");
     }
 
-    function callPutFetch() {
+    function callPutFetch(id, headline, bodyText) {
+      console.log(id, headline, bodyText);
       console.log("called put fetch...");
     }
 
     function saveEditedContainer(postItContainer) {
-      let {
-        id,
-        headline,
-        bodyText
-      } = getPostItContainerValues(postItContainer)
-      callPutFetch()
+      let cancel = confirm("You want to save this?");
+      if (cancel) {
+        let {
+          id,
+          headline,
+          bodyText
+        } =  getPostItContainerValues(postItContainer)
+        console.log(id);
+        hideOrShowBtns()
+        dynamicallyRemoveBtns(postItContainer)
+        callPutFetch(id, headline, bodyText)
+      }
+    }
+
+    function abortEditedContainer(postItContainer) {
+      let cancel = confirm("are you sure you want to leave? Your note won't be saved")
+      if (cancel) {
+        dynamicallyRemoveBtns(postItContainer)
+        hideOrShowBtns()
+        return
+      }
     }
 
     function EventAction(e, postItContainer) {
@@ -203,14 +247,12 @@
       if (action.matches('.deleteBtn')) {
         deleteContainer(postItContainer)
       }
-      if (action.matches('.saveEditsBtn')) {
+      if (action.matches('#saveEditsBtn')) {
         saveEditedContainer(postItContainer)
       }
-      // Unsued abbort function:
-      // <button class="alterBtn displayHide abortEditBtn">back</button>
-      // if (action.matches('.abortEditBtn')) {
-      //   abortEditedContainer()
-      // }
+      if (action.matches('#abortEditBtn')) {
+        abortEditedContainer(postItContainer)
+      }
     }
 
     function grabPostItObject(e) {
