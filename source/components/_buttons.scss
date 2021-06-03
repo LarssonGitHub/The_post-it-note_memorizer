@@ -2,7 +2,8 @@
     display: none;
 }
 
-.postItObject:hover .displayShow {
+.containerChild:hover .displayShow {
+    background-color: red;
     display: block;
 }
 

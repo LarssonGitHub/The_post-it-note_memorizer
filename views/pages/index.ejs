@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- make the fetches for crud (put, post, delete)
+element added after post, put, appended to the dom (fake)
+element removed, removed from the dom (fake)
+work on css and svg
+ -->
 
+ <!-- index
+login
+register -->
+
+<!-- backend, clean up... and make response alert user after send (client side and backend)-->
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -45,7 +55,7 @@
       transition: 0.5s;
     }
 
-    #postForm {
+    /* #postForm {
       display: none;
     }
 
@@ -57,7 +67,7 @@
       transform: translate(-50%, -50%);
       display: block;
       z-index: 1000;
-    }
+    } */
   </style>
 </head>
 
@@ -157,16 +167,18 @@
 
   <h1>DON'T FORGET TO WORK WITH CON TENT EDIEBLE..!</h1>
 
-  <main id="postItContainer" class="d-flex flex-wrap justify-content-around align-items-center align-content-center">
+  <main id="eventDeligationContainer"
+    class="d-flex flex-wrap justify-content-around align-items-center align-content-center">
 
 
     <% results.forEach(function(object) { %>
-    <div class="postItObject m-2 p-2" id="<%= object.id %>">
-      <button class="alterBtn displayHide displayShow editBtn">Edit</button>
-      <h2 class="editableHeadline" contenteditable="false"><%= object.headline %> </h2>
-      <p class="editableBodyText" contenteditable="false"><%= object.note %></p>
-      <p class="userID"><%= object.userID %> </p>
-      <button class="alterBtn displayHide displayShow deleteBtn" id="<%= object.id %>">Delete</button>
+    <div class="containerChild m-2 p-2" id="<%= object.id %>">
+      <button class="btnVisiblity displayHide displayShow editBtn">Edit</button>
+      <h2 class="headline" contenteditable="false"><%= object.headline %> </h2>
+      <p class="bodyText" contenteditable="false"><%= object.note %></p>
+      <p class="colorSelect">makeSelectablecollor with <selcter>or something</selcter>...!</p>
+      <p class="userID" hidden><%= object.userID %> </p>
+      <button class="btnVisiblity displayHide displayShow deleteBtn" id="<%= object.id %>">Delete</button>
     </div>
     <% }); %>
 
@@ -207,121 +219,130 @@
 
 
   <script>
-    const postItContainer = document.getElementById('postItContainer');
-    const postNewPostIt = document.getElementById('postNewPostIt');
+    // const postForm = document.getElementById('postForm');
+    // let data = new FormData(postForm);
+    // console.log(data);
 
-    function getPostItContainerValues(postItContainer) {
-      let idValue = postItContainer.id;
-      console.log("this is id", idValue);
-      let headlineTextContent = postItContainer.querySelector(".editableHeadline").textContent;
-      let BodyTextContent = postItContainer.querySelector(".editableBodyText").textContent;
-      let userIDRuserTextContent = postItContainer.querySelector(".userID").textContent;
+    // postForm.addEventListener('submit', (e) => {
+    //   e.preventDefault()
+    //   //fetch post
+
+    //   fetch('/post', {
+    //       method: 'POST', // or 'PUT'
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify(data),
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //       console.log('Success:', data);
+    //       //append child from result.
+    //     })
+    //     .catch((error) => {
+    //       console.error('Error:', error);
+    //     });
+    // })
+
+
+    const eventDeligationContainer = document.getElementById('eventDeligationContainer');
+
+
+    function childContainerElementValues(childContainer) {
+      let dataBaseId = childContainer.id;
+      let headline = childContainer.querySelector(".headline").textContent;
+      let BodyText = childContainer.querySelector(".bodyText").textContent;
+      let colorSelect = childContainer.querySelector(".colorSelect").textContent;
+      let userID = childContainer.querySelector(".userID").textContent;
       return {
-        id: idValue,
-        headline: headlineTextContent,
-        bodyText: BodyTextContent,
-        userID: userIDRuserTextContent
+        id: dataBaseId,
+        headlineValue: headline,
+        BodyTextValue: BodyText,
+        colorSelectValue: colorSelect,
+        userIDValue: userID
       }
     }
 
-    function grabContainerChildren(postItContainer) {
-      let containerHeadlineChild = postItContainer.querySelector(".editableHeadline");
-      let containerBodyChild = postItContainer.querySelector(".editableBodyText");
-      let containerUserChild = postItContainer.querySelector(".userID");
+    function childContainerElements(childContainer) {
+      let headline = childContainer.querySelector(".headline");
+      let bodyText = childContainer.querySelector(".bodyText");
+      let colorSelect = childContainer.querySelector(".colorSelect");
+      let userID = childContainer.querySelector(".userID");
       return {
-        headlineChild: containerHeadlineChild,
-        bodyChild: containerBodyChild,
-        userChild: containerUserChild
+        headline: headline,
+        bodyText: bodyText,
+        colorSelect: colorSelect,
+        userID: userID
       }
     }
 
-    function alterChildrenEditable(headlineChild, bodyChild) {
-      let editableHeadlineAttribute = headlineChild.getAttribute('contenteditable');
-      let editableBodyTextAttribute = bodyChild.getAttribute('contenteditable');
+    function makeElementsEditable(childContainer) {
+      let {
+        headline,
+        bodyText,
+        colorSelect,
+      } = childContainerElements(childContainer);
 
-      if (editableHeadlineAttribute === 'false' && editableBodyTextAttribute === 'false') {
-        headlineChild.contentEditable = 'true';
-        bodyChild.contentEditable = 'true';
+      let headlineAttribute = headline.getAttribute('contenteditable');
+      let bodyTextAttribute = bodyText.getAttribute('contenteditable');
+
+      if (headlineAttribute === 'false' && bodyTextAttribute === 'false') {
+        headline.contentEditable = 'true';
+        bodyText.contentEditable = 'true';
         return;
       }
-      if (editableHeadlineAttribute === 'true' && editableBodyTextAttribute === 'true') {
-        headlineChild.contentEditable = 'false';
-        bodyChild.contentEditable = 'false';
+      if (headlineAttribute === 'true' && bodyTextAttribute === 'true') {
+        headline.contentEditable = 'false';
+        bodyText.contentEditable = 'false';
       }
     }
 
-    function grabContainer(e) {
-      let target = e.target;
-      if (target.matches('#postItContainer')) {
-        return;
-      }
-      if (!target.matches('.postItObject')) {
-        target = target.parentNode;
-      }
-      return target;
-    }
-
-    function hideOrShowBtns() {
-      let DOMdisplayClasses = postItContainer.querySelectorAll(".alterBtn");
+    function staticBtnsVisiblity() {
+      let allStaticBtns = eventDeligationContainer.querySelectorAll(".btnVisiblity");
 
       //Used in conjuction with css, less javascript code, displayShow = visible, displayHide = none;
-      DOMdisplayClasses.forEach(classes => {
-        if (!classes.classList.contains('displayShow')) {
-          classes.classList.add('displayShow')
+      allStaticBtns.forEach(btn => {
+        if (!btn.classList.contains('displayShow')) {
+          btn.classList.add('displayShow')
           return
         }
-        if (classes.classList.contains('displayShow')) {
-          classes.classList.remove('displayShow')
+        if (btn.classList.contains('displayShow')) {
+          btn.classList.remove('displayShow')
         }
       });
     }
 
-    function addNodeBtn(textNode, idName) {
+    function createNodeBtn(textNode, idName) {
       const createBtn = document.createElement('BUTTON');
       createBtn.innerHTML = textNode;
       createBtn.id = idName;
       return createBtn;
     }
 
-    function dynamicallyAddBtns(postItContainer) {
-
-      const backBtn = addNodeBtn('back', 'abortEditBtn');
-      const saveBtn = addNodeBtn('Save Edits', 'saveEditsBtn');
-
-      postItContainer.insertBefore(backBtn, postItContainer.firstChild)
-      postItContainer.insertBefore(saveBtn, postItContainer.firstChild)
+    function addDynamicBtns(childContainer) {
+      const backBtn = createNodeBtn('back', 'abortEditBtn');
+      const saveBtn = createNodeBtn('Save Edits', 'saveEditsBtn');
+      childContainer.insertBefore(backBtn, childContainer.firstChild)
+      childContainer.insertBefore(saveBtn, childContainer.firstChild)
     }
 
-    function dynamicallyRemoveBtns(postItContainer) {
-      console.log(postItContainer);
-      const getBackBtn = postItContainer.querySelector("#abortEditBtn")
-      const getSaveBtn = postItContainer.querySelector("#saveEditsBtn")
-      console.log(getBackBtn);
-      console.log(getSaveBtn);
-      postItContainer.removeChild(getBackBtn);
-      postItContainer.removeChild(getSaveBtn);
+    function removeDynamicBtns(childContainer) {
+      const grabBackBtn = childContainer.querySelector("#abortEditBtn")
+      const grabSaveBtn = childContainer.querySelector("#saveEditsBtn")
+      childContainer.removeChild(grabSaveBtn);
+      childContainer.removeChild(grabBackBtn);
     }
 
-    function editContainer(postItContainer) {
-      console.log('edit called for...', postItContainer);
-      let {
-        headlineChild,
-        bodyChild
-      } = grabContainerChildren(postItContainer);
-      alterChildrenEditable(headlineChild, bodyChild)
-      hideOrShowBtns()
-      dynamicallyAddBtns(postItContainer)
-    }
-
-    function deleteContainer(postItContainer) {
-
-      console.log('delete called for...', postItContainer);
+    function deleteEvent(childContainer) {
       let {
         id,
-        headline
-      } = getPostItContainerValues(postItContainer)
+        headlineValue,
+        BodyTextValue,
+        colorSelectValue,
+        userIDValue
+      } = childContainerElementValues(childContainer)
 
-      let willDelete = confirm('Are you sure you want to delete ' + headline + "?")
+      let willDelete = confirm('Are you sure you want to delete ' + headlineValue + "?")
 
       if (willDelete) {
         //Function for delete fetch......
@@ -331,74 +352,104 @@
       console.log("Alright, good you didn't :D");
     }
 
-    function callPutFetch(id, headline, bodyText) {
-      console.log(id, headline, bodyText);
-      console.log("called put fetch...");
+    function callPutFetch(childContainer) {
+      let {
+        id,
+        headlineValue,
+        BodyTextValue,
+        colorSelectValue,
+        userIDValue
+      } = childContainerElementValues(childContainer)
+
+      console.log("called put fetch... for.. ", id,
+        headlineValue,
+        BodyTextValue,
+        colorSelectValue,
+        userIDValue);
     }
 
-    function saveEditedContainer(postItContainer) {
-      let cancel = confirm("You want to save this?");
-      if (cancel) {
-        let {
-          id,
-          headline,
-          bodyText
-        } = getPostItContainerValues(postItContainer)
-        console.log(id);
-        hideOrShowBtns()
-        dynamicallyRemoveBtns(postItContainer)
-        callPutFetch(id, headline, bodyText)
+    function saveEdits(childContainer) {
+      let willSaveEdits = confirm("You want to save this post it note?");
+      if (willSaveEdits) {
+        callPutFetch(childContainer)
+        removeDynamicBtns(childContainer)
+        staticBtnsVisiblity()
+        makeElementsEditable(childContainer)
       }
     }
 
-    function abortEditedContainer(postItContainer) {
+    function abortEditedContainer(childContainer) {
       let cancel = confirm("are you sure you want to leave? Your note won't be saved")
       if (cancel) {
-        dynamicallyRemoveBtns(postItContainer)
-        hideOrShowBtns()
-        return
+        removeDynamicBtns(childContainer)
+        staticBtnsVisiblity()
+        makeElementsEditable(childContainer)
       }
     }
 
-    function EventAction(e, postItContainer) {
-      let action = e.target;
 
-      if (action.matches('.editBtn')) {
-        editContainer(postItContainer)
-      }
-      if (action.matches('.deleteBtn')) {
-        deleteContainer(postItContainer)
-      }
-      if (action.matches('#saveEditsBtn')) {
-        saveEditedContainer(postItContainer)
-      }
-      if (action.matches('#abortEditBtn')) {
-        abortEditedContainer(postItContainer)
-      }
+
+    function editEvent(childContainer) {
+      makeElementsEditable(childContainer)
+      staticBtnsVisiblity()
+      addDynamicBtns(childContainer)
     }
 
-    function grabPostItObject(e) {
-      let postItContainer = grabContainer(e)
-      if (!postItContainer || "") {
+
+    function validatEventAction(event, childContainer) {
+      let eventTargetActionRef = event.target;
+      if (eventTargetActionRef.matches('.editBtn')) {
+        editEvent(childContainer)
         return;
       }
-      EventAction(e, postItContainer)
+      if (eventTargetActionRef.matches('.deleteBtn')) {
+        deleteEvent(childContainer)
+        return;
+      }
+      if (eventTargetActionRef.matches('#saveEditsBtn')) {
+        saveEdits(childContainer)
+        return;
+      }
+      if (eventTargetActionRef.matches('#abortEditBtn')) {
+        abortEditedContainer(childContainer)
+        return;
+      }
     }
 
-    postItContainer.addEventListener('click', (e) => {
-      grabPostItObject(e);
+
+    function grabChild(event) {
+      let eventTargetRef = event.target;
+      if (eventTargetRef.matches('#eventDeligationContainer')) {
+        return;
+      }
+      if (!eventTargetRef.matches('.containerChild')) {
+        eventTargetRef = eventTargetRef.parentNode;
+      }
+      return eventTargetRef;
+    }
+
+    function grabContainerChild(event) {
+      let childContainer = grabChild(event)
+      if (!childContainer || "") {
+        return;
+      }
+      validatEventAction(event, childContainer)
+    }
+
+
+
+
+
+
+
+
+    eventDeligationContainer.addEventListener('click', (event) => {
+      grabContainerChild(event);
     })
 
     //Header stuff....
 
-    function createNewPost() {
-      //function to form...
 
-      //post....!
-      console.log('created new post called');
-    }
-
-    // postNewPostIt.addEventListener('click', createNewPost)
 
 
 
