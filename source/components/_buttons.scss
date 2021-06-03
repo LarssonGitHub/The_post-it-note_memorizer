@@ -7,3 +7,32 @@
     display: block;
 }
 
+#logoutBtn {
+    background: url(/assets/SVG/button1.svg)no-repeat center center;
+    filter: drop-shadow(0 10px 4px rgba(0, 0, 0, 0.2));
+    transform: rotate(-3deg);
+    bottom: 7%;
+    left: 2%;
+    z-index: 1000000;
+}
+
+#nukeDatabase {
+//     background: url(/assets/SVG/deleteButton.svg)no-repeat center center ;
+//     -webkit-background-size: cover;
+//     -moz-background-size: cover;
+//     -o-background-size: cover;
+//     background-size: cover;   
+// padding: 2.5rem;
+// margin: 0 1rem;
+    img {
+        object-fit: fill;
+        width: 100px;
+        filter: drop-shadow(0 10px 4px rgba(0, 0, 0, 0.2));
+    }
+    img:hover {
+transform: scale(1.5) ;
+transition: 0.2s;
+        
+    }
+}
+
