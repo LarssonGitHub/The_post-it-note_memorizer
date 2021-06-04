@@ -1,5 +1,7 @@
-
 import controller from '../controller/controller.js';
+import authControl from '../controller/authController.js';
+import auth from '../middleware/auth.js'
+import notify from '../middleware/notify.js' 
 
 const router = express.Router();
 
@@ -32,30 +34,30 @@ router.use(session({
     },
 }));
 
-router.use(controller.notify);
+router.use(notify.notify);
 
-router.get('/', controller.validateUser, controller.getCollection);
+router.get('/', auth.validateUser, controller.getCollection);
 
-router.get('/user/login', controller.renderLogin)
+router.get('/user/login', authControl.renderLogin)
 
-router.post('/user/login', controller.submitLogin)
+router.post('/user/login', authControl.submitLogin)
 
 
-router.get('/user/register', controller.renderRegistrer)
+router.get('/user/register', authControl.renderRegistrer)
 
-router.post('/user/register', controller.submitRegistrer)
+router.post('/user/register', authControl.submitRegistrer)
 
-router.get('/user/logout', controller.validateUser, controller.logout)
+router.get('/user/logout', auth.validateUser, authControl.logout)
 
-router.get('/id/:id', controller.validateUser, controller.getDocument);
+// router.get('/id/:id', auth.validateUser, controller.getDocument);
 
-router.post('/post', controller.validateUser, controller.createDocument);
+router.post('/post', auth.validateUser, controller.createDocument);
 
-router.put('/:id', controller.validateUser, controller.updateDocument);
+router.put('/:id', auth.validateUser, controller.updateDocument);
 
-router.delete('/:id', controller.validateUser, controller.deleteDocument);
+router.delete('/:id', auth.validateUser, controller.deleteDocument);
 
-router.delete('/nuke/database', controller.validateUser, controller.deleteCollection);
+router.delete('/nuke/database', auth.validateUser, controller.deleteCollection);
 
 
 //If it does not exist...

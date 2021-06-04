@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="/css/main.min.css">
 </head>
 <body>
-    <h1> <%= message %></h1>
-    <h1> <%= errorMessage %></h1>
+  <h1>Login</h1>
+  <h2> <%= message %></h2>
+  <p> <%= errorMessage %></p>
 
     <div class="formContainer form-group">
-    <h2>Login</h2>
     <form action="/user/login" method="POST">
       <input type="name" class="form-control mt-5 text-danger" name="name" placeholder="name" required>
       <input type="password" class="form-control mt-5" name="password" placeholder="password" required>

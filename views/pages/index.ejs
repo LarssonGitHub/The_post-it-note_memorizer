@@ -29,8 +29,8 @@ register -->
 
   <header class="d-flex flex-wrap justify-content-between align-items-center align-content-center sticky-top">
     <div id="headerMessage" class="position-relative flex-grow-1 text-left pt-3 pr-4 pl-4 pb-3">
-      <h1> <%= message %> </h1>
-      <h4 class="text-right">Name here</h4>
+      <h1> <%= headerMessage %> </h1>
+      <h4 class="text-right"><%= user %></h4>
       <a id="logoutBtn" class="position-absolute pt-2 pr-4 pl-4 pb-2" href="/user/logout">Logout</a>
     </div>
 
@@ -121,6 +121,8 @@ register -->
   </header>
 
   <p> bottom-50% end-50%.. Postion doesn't work in bootstrap</p>
+
+  <p><%= errorMessage %></p>
   <main id="eventDeligationContainer"
     class="d-flex flex-wrap justify-content-around align-items-center align-content-center">
 
@@ -138,11 +140,16 @@ register -->
     </form>
 
     <% results.forEach(function(object) { %>
-    <div class="containerChild m-2 p-2" id="<%= object.id %>">
+    <div class="postItColor<%= object.colorSelect %> containerChild m-2 p-2" id="<%= object.id %>">
       <button class="btnVisiblity displayHide displayShow editBtn">Edit</button>
       <h2 class="headline" contenteditable="false"><%= object.headline %> </h2>
-      <p class="bodyText" contenteditable="false"><%= object.note %></p>
-      <!-- Make this one show.. a hidden input! -->
+      <p class="bodyText" contenteditable="false"><%= object.bodyText %></p>
+      <select class="colorSelect btnVisiblity displayHide" id="colorSelect" name="colorSelect">
+        <option value="Green">Green</option>
+        <option value="Blue">Blue</option>
+        <option value="Red">Red</option>
+        <option value="Yellow">Yellow</option>
+      </select>
       <p class="colorSelect">makeSelectablecollor with <selcter>or something</selcter>...!</p>
       <p class="userID" hidden><%= object.userID %> </p>
       <button class="btnVisiblity displayHide displayShow deleteBtn" id="<%= object.id %>">Delete</button>
@@ -200,7 +207,7 @@ register -->
       let dataBaseId = childContainer.id;
       let headline = childContainer.querySelector(".headline").textContent;
       let BodyText = childContainer.querySelector(".bodyText").textContent;
-      let colorSelect = childContainer.querySelector(".colorSelect").textContent;
+      let colorSelect = childContainer.querySelector(".colorSelect").value;
       let userID = childContainer.querySelector(".userID").textContent;
       return {
         id: dataBaseId,
@@ -412,7 +419,7 @@ register -->
       validatEventAction(event, childContainer)
     }
 
-    
+
     eventDeligationContainer.addEventListener('click', (event) => {
       grabContainerChild(event);
     })
@@ -438,7 +445,6 @@ register -->
             })
             .then(response => response.json())
             .then(data => {
-              window.location.reload();
               console.log(data)
             }).catch((error) => {
               console.error('Error:', error);
