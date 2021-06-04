@@ -6,11 +6,12 @@ element removed, removed from the dom (fake)
 work on css and svg
  -->
 
- <!-- index
+<!-- index
 login
 register -->
 
 <!-- backend, clean up... and make response alert user after send (client side and backend)-->
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,14 +21,14 @@ register -->
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <link rel="stylesheet" href="/css/main.min.css">
   <style>
-   
+
   </style>
 </head>
 
 <body class="mt-3 ml-2 mr-2 mb-1">
 
   <header class="d-flex flex-wrap justify-content-between align-items-center align-content-center sticky-top">
-    <div id="headerMessage"class="position-relative flex-grow-1 text-left pt-3 pr-4 pl-4 pb-3">
+    <div id="headerMessage" class="position-relative flex-grow-1 text-left pt-3 pr-4 pl-4 pb-3">
       <h1> <%= message %> </h1>
       <h4 class="text-right">Name here</h4>
       <a id="logoutBtn" class="position-absolute pt-2 pr-4 pl-4 pb-2" href="/user/logout">Logout</a>
@@ -123,12 +124,25 @@ register -->
   <main id="eventDeligationContainer"
     class="d-flex flex-wrap justify-content-around align-items-center align-content-center">
 
+    <form id="postForm">
+      <input type="text" name="headlineValue" placeholder="Mr PostIt, at your service" required>
+      <textarea name="bodyTextValue" placeholder="notes"></textarea>
+      <select id="colorSelect" name="colorSelect">
+        <option value="Green">Green</option>
+        <option value="Blue">Blue</option>
+        <option value="Red">Red</option>
+        <option value="Yellow">Yellow</option>
+      </select>
+      <input type="hidden" id="userIDValue" name="userIDValue" value="">
+      <button type="submit">Add Post-it</button>
+    </form>
 
     <% results.forEach(function(object) { %>
     <div class="containerChild m-2 p-2" id="<%= object.id %>">
       <button class="btnVisiblity displayHide displayShow editBtn">Edit</button>
       <h2 class="headline" contenteditable="false"><%= object.headline %> </h2>
       <p class="bodyText" contenteditable="false"><%= object.note %></p>
+      <!-- Make this one show.. a hidden input! -->
       <p class="colorSelect">makeSelectablecollor with <selcter>or something</selcter>...!</p>
       <p class="userID" hidden><%= object.userID %> </p>
       <button class="btnVisiblity displayHide displayShow deleteBtn" id="<%= object.id %>">Delete</button>
@@ -137,28 +151,6 @@ register -->
 
 
   </main>
-
-  <!-- <form id="postForm" action="/post" method="POST">
-    <input type="text" name="headline" placeholder="headline" required>
-    <textarea name="notes" placeholder="notes"></textarea>
-    <button type="submit">Add Post-it</button>
-  </form> -->
-
-  <!-- 
-  <br><br>
-  <form id="getIdForm">
-    <input type="text" name="getId" id="getId">
-    <button type="submit">search id debug</button>
-  </form>
-  <br><br> -->
-
-
-  <!-- Update this shit later.... -->
-  <!-- <form class="b">
-  <input type="text" name="headline" placeholder="headline" required>
-  <textarea name="notes" placeholder="notes"></textarea>
-  <button type="submit">Add Post-it</button>
-</form> -->
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
@@ -172,30 +164,33 @@ register -->
 
 
   <script>
-    // const postForm = document.getElementById('postForm');
-    // let data = new FormData(postForm);
-    // console.log(data);
 
-    // postForm.addEventListener('submit', (e) => {
-    //   e.preventDefault()
-    //   //fetch post
+    const postForm = document.getElementById('postForm');
 
-    //   fetch('/post', {
-    //       method: 'POST', // or 'PUT'
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify(data),
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       console.log('Success:', data);
-    //       //append child from result.
-    //     })
-    //     .catch((error) => {
-    //       console.error('Error:', error);
-    //     });
-    // })
+
+  postForm.addEventListener("submit", e => {
+    e.preventDefault()
+
+    const formDataValues = new FormData(e.target);
+
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Object.fromEntries(formDataValues))
+    };
+    fetch('post/', options)
+        .then(resp => resp.json())
+        .then(data => {
+          //make fetch update..!
+            console.log(data);
+          
+        }).catch(err => {
+            console.log(err);
+       
+        });
+})
 
 
     const eventDeligationContainer = document.getElementById('eventDeligationContainer');
@@ -210,7 +205,7 @@ register -->
       return {
         id: dataBaseId,
         headlineValue: headline,
-        BodyTextValue: BodyText,
+        bodyTextValue: BodyText,
         colorSelectValue: colorSelect,
         userIDValue: userID
       }
@@ -286,40 +281,68 @@ register -->
       childContainer.removeChild(grabBackBtn);
     }
 
+    //Fetch methods...
+
+    function fetchDelete(childContainer) {
+
+      let allChildContainerValues = childContainerElementValues(childContainer)
+      let ChildContainerID = allChildContainerValues.id;
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+      fetch('/' + ChildContainerID, options)
+        .then(response => response.json())
+        .then(data => {
+          //alert notfication..! and delete without reloading site
+          console.log(data);
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+    }
+
+    function callPutFetch(childContainer) {
+
+      let allChildContainerValues = childContainerElementValues(childContainer)
+      let ChildContainerID = allChildContainerValues.id;
+
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(allChildContainerValues)
+      };
+      fetch('/' + ChildContainerID, options)
+        .then(resp => resp.json())
+        .then(data => {
+
+          //make alert and update function..
+          console.log(data);
+     
+
+        }).catch(err => {
+          console.log(err);
+         
+        });
+    }
+
     function deleteEvent(childContainer) {
       let {
-        id,
-        headlineValue,
-        BodyTextValue,
-        colorSelectValue,
-        userIDValue
+        headlineValue
       } = childContainerElementValues(childContainer)
 
       let willDelete = confirm('Are you sure you want to delete ' + headlineValue + "?")
 
       if (willDelete) {
-        //Function for delete fetch......
-        console.log('Let me contact database');
+        fetchDelete(childContainer)
         return;
       }
       console.log("Alright, good you didn't :D");
     }
 
-    function callPutFetch(childContainer) {
-      let {
-        id,
-        headlineValue,
-        BodyTextValue,
-        colorSelectValue,
-        userIDValue
-      } = childContainerElementValues(childContainer)
-
-      console.log("called put fetch... for.. ", id,
-        headlineValue,
-        BodyTextValue,
-        colorSelectValue,
-        userIDValue);
-    }
 
     function saveEdits(childContainer) {
       let willSaveEdits = confirm("You want to save this post it note?");
@@ -389,81 +412,39 @@ register -->
       validatEventAction(event, childContainer)
     }
 
-
-
-
-
-
-
-
+    
     eventDeligationContainer.addEventListener('click', (event) => {
       grabContainerChild(event);
     })
 
-    //Header stuff....
 
+    const nukeBtn = document.getElementById('nukeDatabase')
+    
+    nukeBtn.addEventListener('click', (e) => {
+          e.preventDefault()
+          let doit = confirm("Are you sure you want to nuke everything?")
+          if (!doit) {
+            return;
+          }
+          let really = confirm("YOU CAN NOT REGRET THIS!!")
+          if (!really) {
+            console.log('phew...');
+            return;
+          }
+          //put effects and bomb here if you have time..!
 
+          fetch('/nuke/database', {
+              method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+              window.location.reload();
+              console.log(data)
+            }).catch((error) => {
+              console.error('Error:', error);
+            });
+        })
 
-
-
-
-    /*
-        //   // todo for click event..
-
-        // let form = document.querySelector('#getIdForm');
-        // form.addEventListener('submit', (e) => {
-        //   e.preventDefault();
-        //   const id = document.getElementById('getId').value;
-        //   console.log(id);
-        //   fetch('/id/' + id)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //       console.log("yo")
-        //       console.log(data)
-        //     }).catch((error) => {
-        //       console.error('Error:', error);
-        //     });
-        // })
-
-        // let removeBtn = document.querySelectorAll('.removeBtn');
-
-        // removeBtn.forEach(btn => {
-        //   btn.addEventListener('click', (e) => {
-        //     console.log(e.target.id);
-
-        //     fetch('/' + e.target.id, {
-        //         method: 'DELETE',
-        //       })
-        //       .then(response => response.json())
-        //       .then(data => {
-        //         console.log(data)
-        //       }).catch((error) => {
-        //         console.error('Error:', error);
-        //       });
-        //   })
-        // })
-
-
-        // let nukeBtn = document.getElementById('nukeDatabase').addEventListener('click', (e) => {
-        //   e.preventDefault()
-        //   let doit = confirm("Are you sure you want to nuke everything?")
-        //   let really = confirm("YOU CAN NOT REGRET THIS!!")
-        //   if (!doit) {
-
-        //     return;
-        //   }
-
-        //   fetch('/nuke/database', {
-        //       method: 'DELETE',
-        //     })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //       console.log(data)
-        //     }).catch((error) => {
-        //       console.error('Error:', error);
-        //     });
-        // })
-        */
   </script>
 
 </body>

@@ -177,67 +177,64 @@ async function getDocument(req, res, next) {
 
 async function createDocument(req, res, next) {
     console.log('post event called');
-    const {
-        headline,
-        notes
-    } = req.body;
+    console.log(req.body);
 
-    console.log(req.session.isValidated.name);
+    // console.log(req.session.isValidated.name);
 
-    try {
-        // //in case someone wants to mess with my cookies
-        // if (req.session.isValidated.name !== ) {
-        //     throw new Error("Don't mess around with my cookies!")
-        // }
+    // try {
+    //     // //in case someone wants to mess with my cookies
+    //     // if (req.session.isValidated.name !== ) {
+    //     //     throw new Error("Don't mess around with my cookies!")
+    //     // }
 
-        let newDocument = new models.SchemaClass({
-            headline: headline || "Dude, you didn't add headline",
-            note: notes || "You didn't add anything",
-            //userID: User id när postar postitnote
-            xAxis: 50,
-            yAxis: 50,
-            userID: req.session.isValidated.name
-        });
+    //     let newDocument = new models.SchemaClass({
+    //         headline: headline || "Dude, you didn't add headline",
+    //         note: notes || "You didn't add anything",
+    //         //userID: User id när postar postitnote
+    //         xAxis: 50,
+    //         yAxis: 50,
+    //         userID: req.session.isValidated.name
+    //     });
 
-        if (newDocument.userID !== req.session.isValidated.name) {
-            throw new Error("Don't try to cheat the system...")
-        }
+    //     if (newDocument.userID !== req.session.isValidated.name) {
+    //         throw new Error("Don't try to cheat the system...")
+    //     }
 
-        if (newDocument.userID === req.session.isValidated.name) {
-            let saveDocument = await newDocument.save();
+    //     if (newDocument.userID === req.session.isValidated.name) {
+    //         let saveDocument = await newDocument.save();
 
-            res.status(200).send({
-                message: "Document added!",
-                document: saveDocument
-            })
-            return;
-        }
-    } catch (err) {
-        console.log(err);
-        res.status(404).json(err);
-        return;
-    }
+    //         res.status(200).send({
+    //             message: "Document added!",
+    //             document: saveDocument
+    //         })
+    //         return;
+    //     }
+    // } catch (err) {
+    //     console.log(err);
+    //     res.status(404).json(err);
+    //     return;
+    // }
 }
 
 //Make it.. Nicer.. error handling... Don't forget async shit,...! YOU WHERE HERE........ :(((((((())))))))))()D)
 async function updateDocument(req, res, next) {
     console.log('updatebyid Called');
+    console.log(req.body)
+    // const id = mongoose.Types.ObjectId(req.params.id);
+    // const findDoucment = await models.SchemaClass.findOne({
+    //     _id: id
+    // });
 
-    const id = mongoose.Types.ObjectId(req.params.id);
-    const findDoucment = await models.SchemaClass.findOne({
-        _id: id
-    });
+    // findDoucment.name = "You just updated me!"
+    // findDoucment.quote = findDoucment.category
+    // findDoucment.category = findDoucment.category
 
-    findDoucment.name = "You just updated me!"
-    findDoucment.quote = findDoucment.category
-    findDoucment.category = findDoucment.category
+    // const doc = await findDoucment.save()
 
-    const doc = await findDoucment.save()
-
-    console.log(doc);
+    // console.log(doc);
     res.send({
         a: 'doucment updated!',
-        m: doc
+        // m: doc
     });
 }
 
