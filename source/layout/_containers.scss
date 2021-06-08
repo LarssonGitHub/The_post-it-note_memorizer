@@ -1,0 +1,81 @@
+html {
+    border: 2rem solid #63462D;
+border-bottom: 0;
+}
+
+body {
+    margin: 2rem 5rem 2rem 5rem;
+    background-color: #BA8E4A;
+    height: 100vh;
+    // background: url(/assets/PNG/board.jpg) no-repeat center center;
+    // background-size: cover;
+}
+
+.displayHide {
+    display: none;
+}
+
+.containerChild:hover .displayShow {
+    display: block;
+}
+
+.postItColorYellow {
+    background: url(/assets/SVG/postIt1.svg)no-repeat center center;
+    transform: rotate(-2deg);
+    @include postItSvgValues;
+    @include svgShadow;
+}
+
+.postItColorRed {
+    background: url(/assets/SVG/postIt2.svg)no-repeat center center;
+    transform: rotate(1deg);
+    @include postItSvgValues;
+    @include svgShadow;
+}
+
+.postItColorOrange {
+    background: url(/assets/SVG/postIt3.svg)no-repeat center center;
+    transform: rotate(2deg);
+    @include postItSvgValues;
+    @include svgShadow;
+}
+
+.postItColorPurple {
+    background: url(/assets/SVG/postIt4.svg)no-repeat center center;
+    transform: rotate(-1deg);
+    @include postItSvgValues;
+    @include svgShadow;
+}
+
+.postItColorGreen {
+    background: url(/assets/SVG/postIt5.svg)no-repeat center center;
+    transform: rotate(1deg);
+    @include postItSvgValues;
+    @include svgShadow;
+}
+
+.postItColorBlue {
+    background: url(/assets/SVG/postIt6.svg)no-repeat center center;
+    transform: rotate(2deg);
+    @include postItSvgValues;
+    @include svgShadow;
+}
+
+#notificationContainer {
+    z-index: 9999999;
+    display: none;
+    position: fixed;
+    bottom: 40px;
+    left: 40px;
+    background: url(/assets/SVG/inputFeild1.svg);
+    @include svgAutoValues;
+    @include svgShadow;
+}
+
+.postIt:hover {
+    z-index: 9999999999999999999999;
+    transform: scale(1.2);
+}
+
+
+

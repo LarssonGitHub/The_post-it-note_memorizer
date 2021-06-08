@@ -53,9 +53,9 @@ router.get('/user/logout', auth.validateUser, authControl.logout)
 
 router.post('/post', auth.validateUser, controller.createDocument);
 
-router.put('/:id', auth.validateUser, controller.updateDocument);
+router.put('/put/:id', auth.validateUser, controller.updateDocument);
 
-router.delete('/:id', auth.validateUser, controller.deleteDocument);
+router.delete('/delete/:id', auth.validateUser, controller.deleteDocument);
 
 router.delete('/nuke/database', auth.validateUser, controller.deleteCollection);
 

@@ -33,5 +33,5 @@ app.set('view engine', 'ejs')
 app.use(routes.routes);
 console.log(TEST);
 app.listen(PORT, () => {
-    console.log("I'm listening", PORT, "Lets fucking do this!");
+    console.log("I'm listening", PORT, "Server working");
 })

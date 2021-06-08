@@ -16,7 +16,6 @@ async function getCollection(req, res, next) {
                 headerMessage: "First time? Welcome!",
                 user: req.session.isValidated.name,
                 results: results,
-                errorMessage: null
             });
             return;
         }
@@ -25,16 +24,14 @@ async function getCollection(req, res, next) {
                 headerMessage: 'Welcome back!',
                 user: req.session.isValidated.name,
                 results: results,
-                errorMessage: null
             });
             return;
         }
-        if (validateDocument > 15) {
+        if (validateDocument.length > 15) {
             res.status(200).render('pages/index', {
                 headerMessage: "Isn't it time to clean up some notes?",
                 user: req.session.isValidated.name,
                 results: results,
-                errorMessage: null
             });
             return;
         }
@@ -44,7 +41,6 @@ async function getCollection(req, res, next) {
             headerMessage: 'Something went wrong',
             user: req.session.isValidated.name,
             results: null,
-            errorMessage: err
         });
     }
 }
@@ -78,18 +74,22 @@ async function getDocument(req, res, next) {
 
 async function createDocument(req, res, next) {
     console.log('post event called');
-    console.log(req.body);
-    let {headlineValue, bodyTextValue, colorSelect} = req.body;
+    let {
+        headlineValue,
+        bodyTextValue,
+        colorSelectValue
+    } = req.body;
+
     try {
         let newDocument = new models.Documents({
             headline: headlineValue || "Dude, you didn't add headline",
             bodyText: bodyTextValue || "You didn't add anything",
-            colorSelect: colorSelect,
-            userID: req.session.isValidated.name
+            colorSelect: colorSelectValue || 'Green',
+            userID: req.session.isValidated.name || "noUser"
         });
-        if (newDocument.userID !== req.session.isValidated.name) {
-            res.status(404).json({
-                message: "Don't try to cheat the system lad!"
+        if (newDocument.userID !== req.session.isValidated.name || newDocument === 'noUser') {
+            res.status(203).json({
+                message: "Don't try to cheat the system lad! Didn't add document"
             });
             return;
         }
@@ -97,15 +97,16 @@ async function createDocument(req, res, next) {
             let saveDocument = await newDocument.save();
             console.log(saveDocument);
             res.status(200).json({
-                message: "Document added!",
-                // document: saveDocument
+                message: "New document added!",
+                document: saveDocument
             })
             return;
         }
     } catch (err) {
         console.log(err);
-        res.status(404).json({
-            message: "Something is wrong, didn't add anything, sorry!"
+        res.json({
+            message: "Something failed in the server side, didn't post a new document, sorry!",
+            err: err
         });
         return;
     }
@@ -114,24 +115,67 @@ async function createDocument(req, res, next) {
 //Make it.. Nicer.. error handling... Don't forget async shit,...! YOU WHERE HERE........ :(((((((())))))))))()D)
 async function updateDocument(req, res, next) {
     console.log('updatebyid Called');
-    console.log(req.body);
-    // console.log(req.body)
-    // const id = mongoose.Types.ObjectId(req.params.id);
-    // const findDoucment = await models.SchemaClass.findOne({
-    //     _id: id
-    // });
+    let {
+        id,
+        headlineValue,
+        bodyTextValue,
+        colorSelectValue,
+        userIDValue
+    } = req.body;
 
-    // findDoucment.name = "You just updated me!"
-    // findDoucment.quote = findDoucment.category
-    // findDoucment.category = findDoucment.category
 
-    // const doc = await findDoucment.save()
+    try {
 
-    // console.log(doc);
-    // res.send({
-    //     a: 'doucment updated!',
-    //     // m: doc
-    // });
+        if (id === '') {
+            res.status(401).json({
+                message: "Don't cheat my id! Don't mess with my html id!",
+                document: false
+            });
+            return;
+        }
+        if (userIDValue !== req.session.isValidated.name) {
+            res.status(401).json({
+                message: "I said don't mess with my cookies!",
+                document: false
+            });
+            return;
+        }
+        if (userIDValue === "noUser") {
+            res.status(401).json({
+                message: "I said don't mess with my cookies!",
+                document: false
+            });
+            return;
+        }
+
+        const dataId = mongoose.Types.ObjectId(id);
+
+        let updateDocument = await models.Documents.findOne({
+            _id: dataId
+        });
+
+        updateDocument.overwrite({
+            headline: headlineValue || "Dude, you didn't add headline",
+            bodyText: bodyTextValue || "You didn't add anything",
+            colorSelect: colorSelectValue || 'Green',
+            userID: req.session.isValidated.name || "noUser"
+        });
+
+        const uppdatedDocument = await updateDocument.save();
+
+        res.status(200).json({
+            message: "Document updated!",
+            document: uppdatedDocument
+        })
+        return;
+
+    } catch (err) {
+        console.log(err);
+        res.json({
+            message: "Something is wrong, didn't add anything, sorry!",
+            err: err
+        });
+    }
 }
 
 async function deleteDocument(req, res, next) {
@@ -141,9 +185,10 @@ async function deleteDocument(req, res, next) {
 
         const id = req.params.id;
 
-        if (!id) {
+        if (!id && id.length === 0) {
             res.status(404).json({
-                message: "Sorry, no such id exist..! That or you tried to sneakily get another user's documents..! Bad boy!"
+                message: "Sorry, no such id exist..!!",
+                document: false
             });
             return;
         }
@@ -154,7 +199,8 @@ async function deleteDocument(req, res, next) {
 
         if (findDoucment.userID !== req.session.isValidated.name) {
             res.status(404).json({
-                message: "Sorry, no such id exist..! That or you tried to sneakily get another user's documents..! Don't mess with MY COOKIES!"
+                message: "Sorry, no such id exist..! That or you tried to sneakily get another user's documents..! Don't mess with MY COOKIES!",
+                document: false
             });
             return;
         }
@@ -168,7 +214,11 @@ async function deleteDocument(req, res, next) {
         }
     } catch (err) {
         console.log(err);
-        res.status(404).send(err);
+        res.status(404).send({
+            message: "Something is wrong, didn't delete",
+            err: err
+        });
+
     }
 }
 
@@ -191,18 +241,21 @@ async function deleteCollection(req, res, next) {
         // const doublecheck = findAllDocuments.filter(document => document.userID !==  req.session.isValidated.name);
 
         if (findAllDocuments.length > 0) {
-        await models.Documents.deleteMany({
-            userID: req.session.isValidated.name
-        });
-        res.status(200).json({
-            message: "It's all gone!"
-        });
-        return;
+            await models.Documents.deleteMany({
+                userID: req.session.isValidated.name
+            });
+            res.status(200).json({
+                message: "It's all gone!"
+            });
+            return;
         }
-   
+
     } catch (err) {
         console.log(err);
-        res.status(404).json(err);
+        res.status(404).send({
+            err: err,
+            message: "Something is wrong, didn't nuke"
+        });
     }
 }
 
@@ -210,6 +263,7 @@ function pageNotfound(req, res, next) {
     // res.status(404).send({
     //     m: 'I do not exist.. Sucks'
     // });
+    console.log('I do not exist.. Sucks');
     res.redirect('/')
 }
 

@@ -1,7 +1,41 @@
-header {
+
 #headerMessage {
         background: url(/assets/SVG/header.svg)no-repeat center center;
         filter: drop-shadow(0 10px 4px rgba(0, 0, 0, 0.2));
         transform: rotate(-1deg);
+        position: relative;
+        z-index: 999999;
 }
+
+#headerAddNoteChild {
+        filter: drop-shadow(0 10px 4px rgba(0, 0, 0, 0.2));
+        transform: rotate(3deg);
+        z-index: 999999;
+
+        #postItStack {
+                position: relative;
+                min-width: 250px;
+                width: 50%;
+        }
+
+        #postItStackEvent {
+                position: absolute;
+                width: 30%;
+                min-width: 160px;
+                top: 0;
+                right: 20px;
+        }
+
+        #postItStackEvent:hover {
+                transform: scale(1.5);
+        }
+}
+
+@media only screen and (max-width: 991px) {
+        #headerAddNote {
+                z-index: 999999;
+                position: fixed;
+                bottom: 30px;
+                right: 50px;
+        }
 }
