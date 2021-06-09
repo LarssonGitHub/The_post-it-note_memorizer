@@ -72,6 +72,17 @@ body {
     @include svgShadow;
 }
 
+#loginRegistrerNotifyContainer {
+    background: url(/assets/SVG/inputFeild2.svg);
+    @include svgAutoValues;
+    @include svgShadow;
+}
+
+#notificationPara {
+padding: 1rem;
+font-size: $mediumFont;
+}
+
 .postIt:hover {
     z-index: 9999999999999999999999;
     transform: scale(1.2);
