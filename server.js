@@ -7,11 +7,10 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 const {
-    PORT,
-    TEST,
     connectionStream
 } = process.env;
 
+const port = process.env.PORT || 5000;
 
 mongoose.connect(connectionStream, {
     useNewUrlParser: true,
@@ -31,7 +30,7 @@ app.use(express.static(path.join(path.resolve(), 'assets')));
 app.set('view engine', 'ejs')
 
 app.use(routes.routes);
-console.log(TEST);
-app.listen(PORT, () => {
-    console.log("I'm listening", PORT, "Server working");
+
+app.listen(port, () => {
+    console.log("I'm listening", port, "Server working, starting postitnoteapp");
 })

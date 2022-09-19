@@ -2,7 +2,7 @@ import models from '../models/usersSchema.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const {
-    SESSION_NAME,
+    SESSION_NAME
 } = process.env;
 
 

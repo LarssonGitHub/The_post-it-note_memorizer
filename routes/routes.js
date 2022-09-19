@@ -14,10 +14,9 @@ import express from 'express';
 
 dotenv.config();
 const {
-    SESSION_LIFETIME,
-    NODE_ENV,
     SESSION_NAME,
     SESSION_SECRET,
+    NODE_ENV
 } = process.env;
 
 
@@ -28,9 +27,9 @@ router.use(session({
     saveUninitialized: false,
     store: new MemoryStore(),
     cookie: {
-        maxAge: Number(SESSION_LIFETIME),
+        maxAge: null,
         sameSite: 'strict',
-        secure: NODE_ENV === 'production',
+        secure: NODE_ENV,
     },
 }));
 
