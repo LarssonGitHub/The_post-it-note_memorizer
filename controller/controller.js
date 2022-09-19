@@ -2,7 +2,7 @@ import models from '../models/documentsSchema.js';
 import mongoose from 'mongoose';
 
 async function getCollection(req, res, next) {
-    console.log('render and get collection');
+    // console.log('render and get collection');
     try {
         const validateDocument = await models.Documents.find({
             userID: req.session.isValidated.name
@@ -11,7 +11,7 @@ async function getCollection(req, res, next) {
         const results = validateDocument;
 
         if (!validateDocument || validateDocument.length === 0) {
-            console.log('no documents');
+            console.log('404, no documents');
             res.status(200).render('pages/index', {
                 headerMessage: "First time? Welcome!",
                 user: req.session.isValidated.name,
@@ -46,11 +46,10 @@ async function getCollection(req, res, next) {
 }
 //PRETTY MUCH UNSUSED! ROUTES COMMENTED OUT... Will most likely not have time to implement a new search function..!
 async function getDocument(req, res, next) {
-    console.log("get id called");
+    // console.log("get id called");
     const id = req.params.id
     try {
         const convertToObjectID = mongoose.Types.ObjectId(id)
-        console.log(convertToObjectID);
         const validateDocument = await models.Documents.findOne({
             _id: convertToObjectID
         });
@@ -73,7 +72,7 @@ async function getDocument(req, res, next) {
 }
 
 async function createDocument(req, res, next) {
-    console.log('post event called');
+    // console.log('post event called');
     let {
         headlineValue,
         bodyTextValue,
@@ -95,7 +94,6 @@ async function createDocument(req, res, next) {
         }
         if (newDocument.userID === req.session.isValidated.name) {
             let saveDocument = await newDocument.save();
-            console.log(saveDocument);
             res.status(200).json({
                 message: "New document added!",
                 document: saveDocument
@@ -114,7 +112,7 @@ async function createDocument(req, res, next) {
 
 //Make it.. Nicer.. error handling... Don't forget async shit,...! YOU WHERE HERE........ :(((((((())))))))))()D)
 async function updateDocument(req, res, next) {
-    console.log('updatebyid Called');
+    // console.log('updatebyid Called');
     let {
         id,
         headlineValue,
@@ -180,8 +178,7 @@ async function updateDocument(req, res, next) {
 
 async function deleteDocument(req, res, next) {
     try {
-        //findOneAndDelete better? https://mongoosejs.com/docs/api/model.html#model_Model.deleteOne
-        console.log('delete called');
+        // console.log('delete called');
 
         const id = req.params.id;
 
@@ -224,7 +221,7 @@ async function deleteDocument(req, res, next) {
 
 async function deleteCollection(req, res, next) {
     try {
-        console.log('nuke called');
+        // console.log('nuke called');
 
         const findAllDocuments = await models.Documents.find({
             userID: req.session.isValidated.name
@@ -260,10 +257,7 @@ async function deleteCollection(req, res, next) {
 }
 
 function pageNotfound(req, res, next) {
-    // res.status(404).send({
-    //     m: 'I do not exist.. Sucks'
-    // });
-    console.log('I do not exist.. Sucks');
+    console.log('404. Opps, someone tried to access a route which does not exist.');
     res.redirect('/')
 }
 

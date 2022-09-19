@@ -43,7 +43,7 @@ function renderRegistrer(req, res, next) {
 }
 
 async function submitRegistrer(req, res, next) {
-    console.log('post User event called');
+    // console.log('post User event called');
     const {
         name,
         password

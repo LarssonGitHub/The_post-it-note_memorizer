@@ -23,7 +23,7 @@ function callNuke() {
   }
   let really = confirm("YOU CAN NOT REGRET THIS!!")
   if (!really) {
-    console.log('phew...');
+    console.log('phew... It is over');
     return;
   }
   //put effects and bomb here if you have time..!
@@ -33,7 +33,6 @@ function callNuke() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
       location.reload();
     }).catch((err) => {
       console.log(err);
@@ -84,7 +83,7 @@ eventDeligationHeader.addEventListener('click', (event) => {
 }
 
 function createFetchedChildContainer(fetchChildContainerValues) {
-  console.log("YO, it worked, append", fetchChildContainerValues);
+  // console.log("YO, it worked, append", fetchChildContainerValues);
   let {
     _id,
     headline,
@@ -92,7 +91,6 @@ function createFetchedChildContainer(fetchChildContainerValues) {
     colorSelect,
     userID
   } = fetchChildContainerValues;
-  console.log(fetchChildContainerValues);
 
 
   const newChildContainerDiv = document.createElement("div");
@@ -269,7 +267,6 @@ function callPutFetch(childContainer) {
   fetch('/put/' + ChildContainerID, options)
     .then(resp => resp.json())
     .then(data => {
-      console.log(data.document._id);
       let notificationTextNode = data.message;
       alterNotificationContent(notificationTextNode)
       checkNotificationVisiblity(false)
@@ -326,7 +323,6 @@ function deleteEvent(childContainer) {
     fetchDelete(childContainer)
     return;
   }
-  console.log("Alright, good you didn't :D");
 }
 
 
