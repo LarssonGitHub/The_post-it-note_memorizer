@@ -23,14 +23,14 @@ async function submitLogin(req, res, next) {
             name: name,
             password: password
         });
-        if (!validateUser) {
+        if (!validateUser || validateUser === null) {
             req.session.notification = "No such user found in our database, your password or username is incorrect"
             return res.redirect('/user/login');
         }
         req.session.isValidated = validateUser;
         res.redirect('/')
     } catch (err) {
-        req.session.notification = err;
+        req.session.notification = "Opps, there was a major error when logging in";
         return res.redirect('/user/login');
     }
 }

@@ -16,20 +16,19 @@ dotenv.config();
 const {
     SESSION_NAME,
     SESSION_SECRET,
-    NODE_ENV
 } = process.env;
 
 
 router.use(session({
     name: SESSION_NAME,
     secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: new MemoryStore(),
     cookie: {
         maxAge: null,
         sameSite: 'strict',
-        secure: NODE_ENV,
+        secure: false,
     },
 }));
 
