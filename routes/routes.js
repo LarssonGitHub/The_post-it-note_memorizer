@@ -60,10 +60,10 @@ router.delete('/nuke/database', auth.validateUser, controller.deleteCollection);
 
 
 //If it does not exist...
-router.get('*', controller.pageNotfound);
-router.post('*', controller.pageNotfound);
-router.put('*', controller.pageNotfound);
-router.delete('*', controller.pageNotfound);
+router.get('/*', controller.pageNotfound);
+router.post('/*', controller.pageNotfound);
+router.put('/*', controller.pageNotfound);
+router.delete('/*', controller.pageNotfound);
 
 export default {
     routes: router
