@@ -8,7 +8,6 @@ const documentsSchema = new Schema({
             type: String, 
             // unique has destroyed my collection..! Create a new one! D:
             // unique: true, 
-            minlength: 2,
             maxlength: 100,
             required: true
         },

@@ -15,6 +15,8 @@ h4 {
 
 html {
     min-width: 700px !important;
+    border: 2rem solid #63462D;
+    border-bottom: 0
 }
 
 .btn {
@@ -158,29 +160,22 @@ html {
     }
 }
 
-#registerBtn {
+#registerBtnRedirect,
+#loginBtnRedirect {
+    background: unset;
+    font-size: 1rem;
     margin: 0.5rem;
-    /* margin-left: 00.5rem; */
+    color: black;
+}
+
+#registerBtnSubmit,
+#loginBtnSubmit {
+    margin: 0.5rem;
     background: url(/assets/SVG/button1.svg) no-repeat center center;
     z-index: 99999;
     padding: 0.6rem;
     font-size: 1.4rem;
     filter: drop-shadow(0 10px 4px rgba(0, 0, 0, 0.3))
-}
-
-#loginBtn {
-    margin: 0.5rem;
-    /* margin-left: 00.5rem; */
-    background: url(/assets/SVG/button2.svg) no-repeat center center;
-    z-index: 99999;
-    padding: 0.6rem;
-    font-size: 1.4rem;
-    filter: drop-shadow(0 10px 4px rgba(0, 0, 0, 0.3))
-}
-
-html {
-    border: 2rem solid #63462D;
-    border-bottom: 0
 }
 
 body {
@@ -268,7 +263,7 @@ body {
 }
 
 #notificationPara {
-    padding: 1rem;
+    padding: 1rem 2rem;
     font-size: 1.4rem
 }
 
