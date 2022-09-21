@@ -8,7 +8,7 @@ const {
 
 function renderLogin(req, res, next) {
     res.status(200).render('pages/login', {
-        message: "Welcome to your favorite post it-note-app!",
+        message: "Welcome to your favorite post-it-note-app!",
         errorMessage: res.locals.notification
     });
 }
