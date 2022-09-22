@@ -76,7 +76,7 @@ function logout(req, res) {
         }
         res.clearCookie(SESSION_NAME);
         console.log('cookie destroyed');
-        res.redirect('/')
+        res.redirect('/user/login')
     });
 };
 
