@@ -13,7 +13,7 @@ async function getCollection(req, res, next) {
         if (!validateDocument || validateDocument.length === 0) {
             console.log('404, no documents');
             res.status(200).render('pages/index', {
-                headerMessage: "First time? Welcome!",
+                headerMessage: "First time? Welcome",
                 user: req.session.isValidated.name,
                 results: results,
             });
@@ -59,7 +59,7 @@ async function getDocument(req, res, next) {
         }
 
         if (validateDocument.userID !== req.session.isValidated.name) {
-            throw new Error("Don't try to look up other people's documents! NO peeking");
+            throw new Error("Don't try to look up other people's documents! No peeking");
         }
         if (validateDocument || validateDocument.length === 1) {
             res.status(200).send(validateDocument)
@@ -81,14 +81,14 @@ async function createDocument(req, res, next) {
 
     try {
         let newDocument = new models.Documents({
-            headline: headlineValue || "Dude, you didn't add headline",
-            bodyText: bodyTextValue || "You didn't add anything",
+            headline: headlineValue || "No headline added",
+            bodyText: bodyTextValue || "No notes added",
             colorSelect: colorSelectValue || 'Green',
             userID: req.session.isValidated.name || "noUser"
         });
         if (newDocument.userID !== req.session.isValidated.name || newDocument === 'noUser') {
             res.status(203).json({
-                message: "Don't try to cheat the system lad! Didn't add document"
+                message: "Didn't add a new document"
             });
             return;
         }
@@ -103,7 +103,7 @@ async function createDocument(req, res, next) {
     } catch (err) {
         console.log(err);
         res.json({
-            message: "Something failed in the server side, didn't post a new document, sorry!",
+            message: "Something failed in the server side!",
             err: err
         });
         return;
@@ -153,8 +153,8 @@ async function updateDocument(req, res, next) {
         });
 
         updateDocument.overwrite({
-            headline: headlineValue || "Dude, you didn't add headline",
-            bodyText: bodyTextValue || "You didn't add anything",
+            headline: headlineValue || "No headline added",
+            bodyText: bodyTextValue || "No notes added",
             colorSelect: colorSelectValue || 'Green',
             userID: req.session.isValidated.name || "noUser"
         });
@@ -170,7 +170,7 @@ async function updateDocument(req, res, next) {
     } catch (err) {
         console.log(err);
         res.json({
-            message: "Something is wrong, didn't add anything, sorry!",
+            message: "Couldn't add the document!",
             err: err
         });
     }
@@ -204,7 +204,7 @@ async function deleteDocument(req, res, next) {
         if (findDoucment.userID === req.session.isValidated.name) {
             const deletedDocument = await findDoucment.remove()
             res.status(200).send({
-                message: 'Document deleted! Hope it was worth it!',
+                message: 'Document successfully deleted!',
                 document: deletedDocument.id
             });
             return;
@@ -212,7 +212,7 @@ async function deleteDocument(req, res, next) {
     } catch (err) {
         console.log(err);
         res.status(404).send({
-            message: "Something is wrong, didn't delete",
+            message: "Something is wrong, note wasn't deleted",
             err: err
         });
 
